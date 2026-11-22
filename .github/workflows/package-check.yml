@@ -33,7 +33,7 @@ jobs:
       - name: Prepare Arch tools
         if: matrix.platform == 'arch'
         run: pacman -Syu --noconfirm --needed git python rustup desktop-file-utils gtk3 libglvnd libx11 libxkbcommon libxkbcommon-x11 wayland curl
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
       - name: Validate release notes
@@ -112,7 +112,7 @@ jobs:
     container: ${{ matrix.container }}
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         if: matrix.platform == 'flatpak'
         with:
           persist-credentials: false
@@ -194,7 +194,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
