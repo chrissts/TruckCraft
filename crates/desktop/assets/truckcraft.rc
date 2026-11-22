@@ -1,0 +1,26 @@
+#include "truckcraft_version.h"
+
+1 ICON "truckcraft.ico"
+
+1 VERSIONINFO
+FILEVERSION TRUCKCRAFT_VERSION
+PRODUCTVERSION TRUCKCRAFT_VERSION
+FILEOS 0x00040004
+FILETYPE 0x1
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "FileDescription", "TruckCraft"
+            VALUE "FileVersion", TRUCKCRAFT_VERSION_TEXT
+            VALUE "OriginalFilename", "truckcraft.exe"
+            VALUE "ProductName", "TruckCraft"
+            VALUE "ProductVersion", TRUCKCRAFT_VERSION_TEXT
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 1200
+    END
+END

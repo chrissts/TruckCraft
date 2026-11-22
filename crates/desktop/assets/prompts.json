@@ -1,0 +1,39 @@
+{
+  "mode": "built-in image_gen",
+  "reference_images": [],
+  "transparent_background": true,
+  "assets": [
+    {
+      "name": "truck",
+      "prompt": "Use case: stylized-concept. Asset type: original desktop application icon for a truck simulator save editor. Fresh artwork, no references or reused assets. Crisp polished miniature 3D product render, a clean modern UI icon, strong silhouette readable at 24 pixels, cool graphite, pearl silver and restrained blue accents, subtle soft studio lighting, no text, no lettering, no logos or brand emblems, no border, no ground plane or background. Square canvas, entire subject centered with generous transparent padding, genuinely transparent alpha background. Subject: a European cab-over heavy tractor unit, three-quarter front view pointing to the left, pearl silver cab, graphite chassis, blue trim, clearly a truck tractor without a trailer."
+    },
+    {
+      "name": "coach",
+      "prompt": "Use case: stylized-concept. Asset type: original desktop application icon for a truck simulator save editor. Fresh artwork, no references or reused assets. Crisp polished miniature 3D product render, a clean modern UI icon, strong silhouette readable at 24 pixels, cool graphite, pearl silver and restrained blue accents, subtle soft studio lighting, no text, no lettering, no logos or brand emblems, no border, no ground plane or background. Square canvas, entire subject centered with generous transparent padding, genuinely transparent alpha background. Subject: a modern full-size single-deck touring coach, long silver body, broad dark glass windows, blue accent stripe, three-quarter front view pointing to the left. Clearly a passenger coach, no truck features."
+    },
+    {
+      "name": "trailer",
+      "prompt": "Use case: stylized-concept. Asset type: original desktop application icon for a truck simulator save editor. Fresh artwork, no references or reused assets. Crisp polished miniature 3D product render, a clean modern UI icon, strong silhouette readable at 24 pixels, cool graphite, pearl silver and restrained blue accents, subtle soft studio lighting, no text, no lettering, no logos or brand emblems, no border, no ground plane or background. Square canvas, entire subject centered with generous transparent padding, genuinely transparent alpha background. Subject: a standalone European box semi-trailer, three-quarter front view pointing to the left, silver box sides and graphite undercarriage with dark tires, blue accent trim. No tractor or truck cab."
+    },
+    {
+      "name": "profile",
+      "prompt": "Use case: stylized-concept. Asset type: original desktop application tab icon for a truck simulator save editor. Fresh artwork, no references or reused assets. A crisp polished miniature 3D product render with a strong simple silhouette readable at 28 pixels. Cool graphite, pearl silver and restrained blue accents, subtle soft studio lighting. No text, no lettering, no logos, no border, no ground plane, no glow or background. Square canvas with the entire subject centered, filling about 75 percent of the canvas, genuinely transparent alpha background. Subject: A simple head-and-shoulders human profile bust in pearl silver with a small blue identification-card edge, an anonymous generic account avatar, no detailed facial features."
+    },
+    {
+      "name": "company",
+      "prompt": "Use case: stylized-concept. Asset type: original desktop application tab icon for a truck simulator save editor. Fresh artwork, no references or reused assets. A crisp polished miniature 3D product render with a strong simple silhouette readable at 28 pixels. Cool graphite, pearl silver and restrained blue accents, subtle soft studio lighting. No text, no lettering, no logos, no border, no ground plane, no glow or background. Square canvas with the entire subject centered, filling about 75 percent of the canvas, genuinely transparent alpha background. Subject: A compact transport company depot: a clean pearl silver warehouse building with two dark loading doors and a restrained blue roof edge, a clearly readable business/depot silhouette."
+    },
+    {
+      "name": "freight",
+      "prompt": "Use case: stylized-concept. Asset type: original desktop application tab icon for a truck simulator save editor. Fresh artwork, no references or reused assets. A crisp polished miniature 3D product render with a strong simple silhouette readable at 28 pixels. Cool graphite, pearl silver and restrained blue accents, subtle soft studio lighting. No text, no lettering, no logos, no border, no ground plane, no glow or background. Square canvas with the entire subject centered, filling about 75 percent of the canvas, genuinely transparent alpha background. Subject: One compact wooden freight crate on a graphite pallet with a small silver-and-blue forwarding arrow beside it, clearly representing freight deliveries."
+    },
+    {
+      "name": "cargo",
+      "prompt": "Use case: stylized-concept. Asset type: original desktop application tab icon for a truck simulator save editor. Fresh artwork, no references or reused assets. A crisp polished miniature 3D product render with a strong simple silhouette readable at 28 pixels. Cool graphite, pearl silver and restrained blue accents, subtle soft studio lighting. No text, no lettering, no logos, no border, no ground plane, no glow or background. Square canvas with the entire subject centered, filling about 75 percent of the canvas, genuinely transparent alpha background. Subject: Two compact intermodal shipping containers stacked at a slight offset, one pearl silver and one restrained blue, dark corner fittings. Clearly cargo containers, no vehicles."
+    },
+    {
+      "name": "convoy",
+      "prompt": "Use case: stylized-concept. Asset type: original desktop application tab icon for a truck simulator save editor. Fresh artwork, no references or reused assets. A crisp polished miniature 3D product render with a strong simple silhouette readable at 28 pixels. Cool graphite, pearl silver and restrained blue accents, subtle soft studio lighting. No text, no lettering, no logos, no border, no ground plane, no glow or background. Square canvas with the entire subject centered, filling about 75 percent of the canvas, genuinely transparent alpha background. Subject: Two compact pearl silver European truck tractor cabs driving in line along a very short blue route ribbon, one behind the other, no trailers, a cohesive compact convoy symbol."
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=TruckCraft
+Comment=Edit Euro Truck Simulator 2 and American Truck Simulator saves
+Exec=truckcraft
+Icon=io.github.chrissts.TruckCraft
+Terminal=false
+Categories=Game;Utility;

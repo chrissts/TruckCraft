@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.chrissts.TruckCraft</id>
+  <name>TruckCraft</name>
+  <summary>Edit Euro Truck Simulator 2 and American Truck Simulator saves</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>Apache-2.0</project_license>
+  <description>
+    <p>TruckCraft edits local simulator profiles, company balances, fleets, and active journeys. Review changes before saving, undo or redo edits, and recover a backup into a separate profile.</p>
+  </description>
+  <launchable type="desktop-id">io.github.chrissts.TruckCraft.desktop</launchable>
+  <url type="homepage">https://github.com/chrissts/TruckCraft</url>
+  <content_rating type="oars-1.1"/>
+</component>
