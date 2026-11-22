@@ -286,7 +286,7 @@ copy first without the `--delete-data` option, then install the repository build
 
 ## Compatibility and verification
 
-TruckCraft 1.0.1 targets **ETS2 1.62.x**, **ATS 1.62.x** and **save format 105**. About shows the loaded save’s actual format. Game updates, DLC, maps and mods can affect compatibility. Advanced vehicle parts, game-definition catalogs and some translations are incomplete.
+TruckCraft 1.0.2 targets **ETS2 1.62.x**, **ATS 1.62.x** and **save format 105**. About shows the loaded save’s actual format. Game updates, DLC, maps and mods can affect compatibility. Advanced vehicle parts, game-definition catalogs and some translations are incomplete.
 
 The [desktop test workflow](.github/workflows/desktop-tests.yml) runs the workspace suite on Windows, Ubuntu, Apple Silicon and Intel macOS for pull requests or a manual run. In-game loading and a standalone run on a clean Windows installation remain release checks. See the [contributor checks](AGENTS.md#release-validation).
 
