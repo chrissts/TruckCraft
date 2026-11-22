@@ -29,6 +29,12 @@ fn show_manual_update(ui: &mut egui::Ui) {
     }
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(super) enum CheckOrigin {
+    Startup,
+    Manual,
+}
+
 pub(super) enum ReleaseCheck {
     Latest {
         tag: String,
@@ -38,6 +44,13 @@ pub(super) enum ReleaseCheck {
     },
     Unpublished,
     Failed,
+}
+
+impl ReleaseCheck {
+    pub(super) fn visible(self, origin: CheckOrigin) -> Option<Self> {
+        (origin == CheckOrigin::Manual || matches!(self, Self::Latest { newer: true, .. }))
+            .then_some(self)
+    }
 }
 
 #[cfg(windows)]
@@ -145,7 +158,18 @@ impl EditorApp {
     }
 
     pub(super) fn check_release(&mut self, ctx: &egui::Context) {
-        if self.checking_release {
+        self.start_release_check(ctx, CheckOrigin::Manual);
+    }
+
+    pub(crate) fn check_release_on_launch(&mut self, ctx: &egui::Context) {
+        self.start_release_check(ctx, CheckOrigin::Startup);
+    }
+
+    fn start_release_check(&mut self, ctx: &egui::Context, origin: CheckOrigin) {
+        if let Some(pending_origin) = &mut self.checking_release {
+            if origin == CheckOrigin::Manual {
+                *pending_origin = origin;
+            }
             return;
         }
         #[cfg(windows)]
@@ -158,7 +182,7 @@ impl EditorApp {
             self.update_state = UpdateState::Idle;
         }
         self.release_result = None;
-        self.checking_release = true;
+        self.checking_release = Some(origin);
         let sender = self.tx.clone();
         let ctx = ctx.clone();
         thread::spawn(move || {
@@ -295,6 +319,28 @@ impl EditorApp {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn launch_only_shows_a_newer_release() {
+        let check = |tag: &str| {
+            let body = serde_json::json!({"tag_name": tag}).to_string();
+            parse_release(body.as_bytes(), b"200")
+        };
+        assert!(check("v9999.0.0").visible(CheckOrigin::Startup).is_some());
+        assert!(
+            check(env!("CARGO_PKG_VERSION"))
+                .visible(CheckOrigin::Startup)
+                .is_none()
+        );
+        assert!(ReleaseCheck::Failed.visible(CheckOrigin::Startup).is_none());
+        assert!(
+            ReleaseCheck::Unpublished
+                .visible(CheckOrigin::Startup)
+                .is_none()
+        );
+        assert!(ReleaseCheck::Failed.visible(CheckOrigin::Manual).is_some());
+    }
+
     #[test]
     fn release_versions_and_unavailable_repositories() {
         for (tag, expected) in [

@@ -60,6 +60,8 @@ Download TruckCraft from the [latest GitHub release](https://github.com/chrissts
 | Arch Linux and CachyOS (x86-64) | `TruckCraft.pkg.tar.zst` | Install with `sudo pacman -U ./TruckCraft.pkg.tar.zst`. |
 | Linux with Flatpak (x86-64, experimental) | `TruckCraft.flatpak` | Install with `flatpak install --user ./TruckCraft.flatpak`. |
 
+**Opening TruckCraft on Windows.** I don’t have a Windows code-signing certificate, so `TruckCraft.exe` is unsigned. Windows may show **Unknown publisher** or Microsoft Defender SmartScreen’s **Windows protected your PC** prompt. If you downloaded the executable from the official release linked above and choose to run it, select **More info → Run anyway** when SmartScreen offers that option. If Defender reports a specific threat or quarantines the file, leave it blocked. [How SmartScreen works](https://learn.microsoft.com/windows/apps/package-and-deploy/smartscreen-reputation)
+
 **macOS** is available as a universal test build from GitHub Actions, with automated smoke tests on Apple Silicon and Intel runners. Hands-on testing on a Mac is still pending. [macOS test builds](https://github.com/chrissts/TruckCraft/actions/workflows/package-check.yml)
 
 The Linux packages are checked on Fedora 45, Ubuntu 26.04, Arch Linux, and CachyOS. Other distributions need compatible system libraries.
@@ -202,7 +204,7 @@ For a separately installed Windows GNU toolchain, use the wrapper to remap local
 
 TruckCraft builds directly from a fresh checkout and can read regional plate artwork from a local game installation. Local builds can also use a complete set of separately supplied game artwork. [Artwork and provenance](crates/desktop/assets/ARTWORK.md)
 
-**Check for updates** beside Settings compares your version with the latest public release. On Windows, you can download a verified update and choose **Install and restart** once pending save edits are resolved. On Linux, use your package manager after [setting up the repository](#linux-updates), or open the release and download the matching package. macOS test builds are linked from the dialog when a newer release is available. Windows releases without verified update metadata can be downloaded manually from the release.
+TruckCraft checks GitHub in the background at launch and shows a dialog when a newer version is available. You can also select **Check for updates** beside Settings at any time. On Windows, download a verified update and choose **Install and restart** once pending save edits are resolved. On Linux, use your package manager after [setting up the repository](#linux-updates), or open the release and download the matching package. The dialog also links to macOS test builds and to manual downloads for Windows releases without verified update metadata.
 
 ## Linux updates
 
