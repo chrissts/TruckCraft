@@ -34,6 +34,10 @@ version is **1.0.0**. The simulator compatibility target is **ETS2 and ATS 1.62.
 - In-app updates are allowed. Verify the authenticity and integrity of the
   update before installing it. Ask the user before replacing the app or
   restarting it, and preserve pending save edits.
+- Keep macOS updates manual while builds are test artifacts. If a public
+  Developer ID-signed and notarized `.app` is available later, evaluate
+  Sparkle with signed update archives and an authenticated appcast. Verify
+  installation and recovery on Apple Silicon and Intel hardware before shipping.
 - Discover both local and OneDrive Documents game homes, the default Steam game
   installations, and Steam userdata remote homes (ETS2 app 227300; ATS app 270880).
   Keep custom-folder discovery for other libraries and redirected homes. Warn

@@ -5,6 +5,8 @@ mod app;
 mod artwork;
 mod game_artwork;
 mod i18n;
+#[cfg(windows)]
+mod windows_update;
 const APP_NAME: &str = "TruckCraft";
 fn display_version() -> &'static str {
     let version = env!("CARGO_PKG_VERSION");
@@ -16,6 +18,10 @@ fn isolated_launch() -> bool {
 }
 
 fn main() -> eframe::Result {
+    #[cfg(windows)]
+    if let Some(result) = windows_update::run_helper() {
+        return result.map_err(|error| eframe::Error::AppCreation(Box::new(error)));
+    }
     let isolated = isolated_launch();
     let _ = activity::EventLog::new(isolated).record(
         "INFO",
@@ -49,7 +55,12 @@ fn main() -> eframe::Result {
     let result = eframe::run_native(
         &format!("{APP_NAME} {}", display_version()),
         options,
-        Box::new(|context| Ok(Box::new(app::EditorApp::new(context)))),
+        Box::new(|context| {
+            let app = app::EditorApp::new(context);
+            #[cfg(windows)]
+            let app = app.with_update_confirmation(windows_update::Startup::from_args());
+            Ok(Box::new(app))
+        }),
     );
     let _ = activity::EventLog::new(isolated).record(
         if result.is_ok() { "INFO" } else { "ERROR" },

@@ -202,7 +202,82 @@ For a separately installed Windows GNU toolchain, use the wrapper to remap local
 
 TruckCraft builds directly from a fresh checkout and can read regional plate artwork from a local game installation. Local builds can also use a complete set of separately supplied game artwork. [Artwork and provenance](crates/desktop/assets/ARTWORK.md)
 
-**Check for updates** beside Settings contacts GitHub when clicked. It shows the latest public release and a link to download it.
+**Check for updates** beside Settings compares your version with the latest public release. On Windows, you can download a verified update and choose **Install and restart** once pending save edits are resolved. On Linux, use your package manager after [setting up the repository](#linux-updates), or open the release and download the matching package. macOS test builds are linked from the dialog when a newer release is available. Windows releases without verified update metadata can be downloaded manually from the release.
+
+## Linux updates
+
+The [TruckCraft package feeds](https://chrissts.github.io/TruckCraft/) provide
+signed packages for Ubuntu 26.04 x86-64 and compatible derivatives, Fedora 45,
+Arch Linux and CachyOS. Add the feed once to receive later versions through your
+package manager. The [standalone packages](https://github.com/chrissts/TruckCraft/releases/latest)
+are also available for manual updates.
+
+For APT, DNF or pacman, use the [TruckCraft signing key](https://chrissts.github.io/TruckCraft/truckcraft.asc).
+Its OpenPGP fingerprint is `42392E03F1D2049A05E563261E577B6CDF11D3A3`.
+
+<details>
+<summary>Ubuntu 26.04 and compatible derivatives (APT)</summary>
+
+```sh
+curl -fsSLO https://chrissts.github.io/TruckCraft/truckcraft.asc
+gpg --show-keys --fingerprint truckcraft.asc
+# Compare the fingerprint above before installing the key.
+sudo install -D -m 0644 truckcraft.asc /etc/apt/keyrings/truckcraft.asc
+echo 'deb [arch=amd64 signed-by=/etc/apt/keyrings/truckcraft.asc] https://chrissts.github.io/TruckCraft/debian stable main' | sudo tee /etc/apt/sources.list.d/truckcraft.list
+sudo apt update
+sudo apt install truckcraft
+```
+
+</details>
+
+<details>
+<summary>Fedora 45 and compatible derivatives (DNF)</summary>
+
+```sh
+curl -fsSLO https://chrissts.github.io/TruckCraft/truckcraft.repo
+sudo install -m 0644 truckcraft.repo /etc/yum.repos.d/truckcraft.repo
+sudo dnf install truckcraft
+```
+
+Check the displayed fingerprint when DNF asks to import the signing key.
+
+</details>
+
+<details>
+<summary>Arch Linux and CachyOS (pacman)</summary>
+
+```sh
+curl -fsSLO https://chrissts.github.io/TruckCraft/truckcraft.asc
+gpg --show-keys --fingerprint truckcraft.asc
+# Compare the fingerprint above before trusting the key.
+sudo pacman-key --add truckcraft.asc
+sudo pacman-key --lsign-key 42392E03F1D2049A05E563261E577B6CDF11D3A3
+```
+
+Add this section to `/etc/pacman.conf`, then run `sudo pacman -Syu truckcraft`.
+
+```ini
+[truckcraft]
+SigLevel = Required
+Server = https://chrissts.github.io/TruckCraft/arch/
+```
+
+</details>
+
+<details>
+<summary>Flatpak and SteamOS (experimental)</summary>
+
+In Desktop Mode on SteamOS, open Konsole.
+
+```sh
+flatpak install --user https://chrissts.github.io/TruckCraft/TruckCraft.flatpakref
+flatpak update --user io.github.chrissts.TruckCraft
+```
+
+If Flatpak reports that a standalone bundle is already installed, uninstall that
+copy first without the `--delete-data` option, then install the repository build.
+
+</details>
 
 ## Compatibility and verification
 

@@ -112,6 +112,32 @@ Load edited copies in both simulators and record those checks separately.
 
 The manual [native package workflow](../.github/workflows/package-check.yml) builds each package and tests it on a fresh runner. The Flatpak check repeats the save and recovery test in native Linux, Proton, and explicitly granted custom directories. Both Mac runners use the same universal ZIP. The Arch Linux and CachyOS containers install the same pacman package. If enabled, the draft release attaches the verified Windows, RPM, Debian, pacman, and Flatpak downloads. The workflow retains private test artifacts for one day.
 
+### Sign a Windows update
+
+Before publishing a draft, download its final `TruckCraft.exe` and run the signer on the Windows release machine with PowerShell 7 and OpenSSL 3. Use the private key corresponding to [the public key bundled in TruckCraft](windows-update-public-key.txt). Keep the private key and a secure backup outside the repository.
+
+```powershell
+./release/sign-windows-update.ps1 -Tag v1.0.1 -Executable 'C:\releases\TruckCraft.exe' -SigningKey 'C:\keys\windows-updates-ed25519.pem'
+```
+
+Append the output as its own line at the end of the draft description. GitHub hides this HTML comment on the release page. It signs the exact tag, size, and SHA-256 of the executable, so the file must be final before signing. Publish the draft with the signed description. Releases without signed metadata still appear in the update dialog with a manual download link.
+
+Test Windows updates in a writable directory using isolated instances and two different app versions. Check pending edits, a successful download and restart, rejection of altered payloads, and recovery if the replacement cannot start.
+
+### Publish Linux update feeds
+
+After publishing a stable GitHub release, run the **Publish Linux update feeds**
+workflow from `main`. It checks the published release asset digests and builds
+signed APT, DNF, pacman and Flatpak repositories from those exact packages. The
+GitHub Pages deployment replaces the feeds together. The standalone Downloads
+on GitHub Releases remain available.
+
+The workflow uses the `LINUX_REPOSITORY_SIGNING_KEY` secret in the
+`linux-repository` environment, which allows deployments from `main`. The
+exported OpenPGP key must match the fingerprint in
+[`linux-repository-fingerprint.txt`](linux-repository-fingerprint.txt). Keep a
+secure offline backup and rotate the key before it expires.
+
 ## Release notes
 
 For each version, add a Markdown summary of user-facing changes to

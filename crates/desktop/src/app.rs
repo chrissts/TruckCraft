@@ -33,6 +33,8 @@ mod vehicle_ui;
 const GITHUB: &str = "https://github.com/chrissts/TruckCraft";
 enum Task {
     ReleaseChecked(updates::ReleaseCheck),
+    #[cfg(windows)]
+    UpdateDownloaded(std::io::Result<crate::windows_update::Prepared>),
     Recovered(Game, Result<PathBuf>),
     StarterCreated(Result<()>),
     GameDataLoaded {
@@ -198,6 +200,10 @@ pub struct EditorApp {
     about: bool,
     checking_release: bool,
     release_result: Option<updates::ReleaseCheck>,
+    #[cfg(windows)]
+    update_state: updates::UpdateState,
+    #[cfg(windows)]
+    update_confirmation: Option<crate::windows_update::Startup>,
     review_open: bool,
     failed_slot: Option<PathBuf>,
     input: Inputs,
@@ -245,6 +251,10 @@ impl EditorApp {
             about: false,
             checking_release: false,
             release_result: None,
+            #[cfg(windows)]
+            update_state: updates::UpdateState::Idle,
+            #[cfg(windows)]
+            update_confirmation: None,
             review_open: false,
             failed_slot: None,
             input: Inputs::default_for_save(),
@@ -554,6 +564,13 @@ impl EditorApp {
                 Task::ReleaseChecked(result) => {
                     self.checking_release = false;
                     self.release_result = Some(result);
+                }
+                #[cfg(windows)]
+                Task::UpdateDownloaded(result) => {
+                    self.update_state = match result {
+                        Ok(update) => updates::UpdateState::Ready(update),
+                        Err(error) => updates::UpdateState::Failed(error.to_string()),
+                    };
                 }
                 Task::Recovered(game, result) => {
                     self.busy = false;
