@@ -6,6 +6,6 @@ license = "MIT AND Apache-2.0"
 description = "Bounded, pure Rust SCS save and game archive decoding, adapted from scs_tools"
 
 [dependencies]
-aes = "0.8"
-cbc = "0.1"
+aes = "0.9"
+cbc = "0.2"
 flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
