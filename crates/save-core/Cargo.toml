@@ -6,7 +6,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-dirs = "6"
+dirs = "7"
 flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
 scs-codec = { path = "../scs-codec" }
 thiserror.workspace = true
