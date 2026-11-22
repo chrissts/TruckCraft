@@ -21,6 +21,8 @@ settings.json
 truckcraft-settings.json
 tsset-backups/
 .truckcraft-profile-backups/
+.truckcraft-update-*/
+.truckcraft-update.lock
 profiles/
 steam_profiles/
 dbs/

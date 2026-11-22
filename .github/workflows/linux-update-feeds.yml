@@ -1,0 +1,73 @@
+name: Publish Linux update feeds
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: linux-update-feeds
+  cancel-in-progress: false
+
+jobs:
+  package-repositories:
+    name: Sign update feeds
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-26.04
+    environment: linux-repository
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install repository tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends apt-utils createrepo-c flatpak gnupg libarchive-tools makepkg ostree pacman-package-manager rpm zstd
+      - name: Fetch and verify the latest stable release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/releases/latest" > "$RUNNER_TEMP/release.json"
+          tag=$(jq -er 'select(.draft == false and .prerelease == false) | .tag_name' "$RUNNER_TEMP/release.json")
+          gh release download --repo "$GITHUB_REPOSITORY" --dir "$RUNNER_TEMP/assets" \
+            --pattern TruckCraft.deb --pattern TruckCraft.rpm \
+            --pattern TruckCraft.pkg.tar.zst --pattern TruckCraft.flatpak -- "$tag"
+          (
+            cd "$RUNNER_TEMP/assets"
+            for file in TruckCraft.deb TruckCraft.rpm TruckCraft.pkg.tar.zst TruckCraft.flatpak; do
+              digest=$(jq -er --arg file "$file" '.assets[] | select(.name == $file) | .digest' "$RUNNER_TEMP/release.json")
+              [[ "$digest" =~ ^sha256:[a-f0-9]{64}$ ]]
+              printf '%s  %s\n' "${digest#sha256:}" "$file" | sha256sum --check --strict
+            done
+          )
+      - name: Build signed repositories
+        env:
+          LINUX_REPOSITORY_SIGNING_KEY: ${{ secrets.LINUX_REPOSITORY_SIGNING_KEY }}
+        run: |
+          export GNUPGHOME=$(mktemp -d)
+          trap 'gpgconf --kill all; rm -rf -- "$GNUPGHOME"' EXIT
+          test -n "$LINUX_REPOSITORY_SIGNING_KEY"
+          printf '%s\n' "$LINUX_REPOSITORY_SIGNING_KEY" | gpg --batch --import
+          unset LINUX_REPOSITORY_SIGNING_KEY
+          fingerprint=$(cat release/linux-repository-fingerprint.txt)
+          tag=$(jq -er '.tag_name' "$RUNNER_TEMP/release.json")
+          bash release/build-linux-repositories.sh "$RUNNER_TEMP/assets" "$RUNNER_TEMP/site" \
+            "$tag" "$fingerprint" https://chrissts.github.io/TruckCraft
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
+        with:
+          path: ${{ runner.temp }}/site
+
+  publish:
+    name: Deploy update feeds
+    needs: package-repositories
+    runs-on: ubuntu-26.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+        id: deployment

@@ -3,13 +3,49 @@ use semver::Version;
 use std::io::Read;
 use std::process::{Command, Stdio};
 
+#[cfg(windows)]
+use crate::windows_update::{Manifest, Prepared, Startup};
+
 const API: &str = "https://api.github.com/repos/chrissts/TruckCraft/releases/latest";
 const LIMIT: usize = 1024 * 1024;
 
+fn show_manual_update(ui: &mut egui::Ui) {
+    if cfg!(target_os = "macos") {
+        ui.label(tr("In-app updates are unavailable on macOS. macOS test builds are available in GitHub Actions."));
+        ui.hyperlink_to(
+            tr("Open macOS test builds"),
+            format!("{GITHUB}/actions/workflows/package-check.yml"),
+        );
+    } else if cfg!(target_os = "linux") {
+        ui.label(tr("Update TruckCraft through your package manager or Flatpak if you installed it from a TruckCraft repository. You can also download the matching package from GitHub."));
+        ui.hyperlink_to(
+            tr("Set up Linux updates"),
+            format!("{GITHUB}#linux-updates"),
+        );
+    } else {
+        ui.label(tr(
+            "In-app installation is unavailable for this update. Download it from GitHub Releases.",
+        ));
+    }
+}
+
 pub(super) enum ReleaseCheck {
-    Latest { tag: String, newer: bool },
+    Latest {
+        tag: String,
+        newer: bool,
+        #[cfg(windows)]
+        manifest: Option<Manifest>,
+    },
     Unpublished,
     Failed,
+}
+
+#[cfg(windows)]
+pub(super) enum UpdateState {
+    Idle,
+    Downloading,
+    Ready(Prepared),
+    Failed(String),
 }
 
 fn parse_release(body: &[u8], status: &[u8]) -> ReleaseCheck {
@@ -22,10 +58,13 @@ fn parse_release(body: &[u8], status: &[u8]) -> ReleaseCheck {
     #[derive(serde::Deserialize)]
     struct Release {
         tag_name: String,
+        #[cfg(windows)]
+        body: Option<String>,
     }
-    let Ok(Release { tag_name }) = serde_json::from_slice(body) else {
+    let Ok(release) = serde_json::from_slice::<Release>(body) else {
         return ReleaseCheck::Failed;
     };
+    let tag_name = release.tag_name;
     let raw = tag_name.strip_prefix('v').unwrap_or(&tag_name);
     let normalized = if raw.split('.').count() == 2 {
         format!("{raw}.0")
@@ -36,9 +75,15 @@ fn parse_release(body: &[u8], status: &[u8]) -> ReleaseCheck {
         return ReleaseCheck::Failed;
     };
     let installed = Version::parse(env!("CARGO_PKG_VERSION")).expect("Cargo version");
+    #[cfg(windows)]
+    let manifest = release
+        .body
+        .and_then(|body| Manifest::from_release(&body, &tag_name));
     ReleaseCheck::Latest {
         tag: tag_name,
         newer: latest.cmp_precedence(&installed).is_gt(),
+        #[cfg(windows)]
+        manifest,
     }
 }
 
@@ -93,9 +138,24 @@ fn fetch() -> Option<ReleaseCheck> {
 }
 
 impl EditorApp {
+    #[cfg(windows)]
+    pub(crate) fn with_update_confirmation(mut self, startup: Option<Startup>) -> Self {
+        self.update_confirmation = startup;
+        self
+    }
+
     pub(super) fn check_release(&mut self, ctx: &egui::Context) {
         if self.checking_release {
             return;
+        }
+        #[cfg(windows)]
+        if matches!(
+            self.update_state,
+            UpdateState::Downloading | UpdateState::Ready(_)
+        ) {
+            return;
+        } else {
+            self.update_state = UpdateState::Idle;
         }
         self.release_result = None;
         self.checking_release = true;
@@ -109,40 +169,125 @@ impl EditorApp {
         });
     }
 
+    #[cfg(windows)]
+    fn download_update(&mut self, manifest: Manifest, ctx: &egui::Context) {
+        self.update_state = UpdateState::Downloading;
+        let sender = self.tx.clone();
+        let ctx = ctx.clone();
+        thread::spawn(move || {
+            let _ = sender.send(Task::UpdateDownloaded(Prepared::download(&manifest)));
+            ctx.request_repaint();
+        });
+    }
+
+    #[cfg(windows)]
+    fn install_update(&mut self, ctx: &egui::Context) {
+        if self.unsaved() || self.busy || self.saving || self.profile_tools.running {
+            return;
+        }
+        let UpdateState::Ready(update) =
+            std::mem::replace(&mut self.update_state, UpdateState::Idle)
+        else {
+            return;
+        };
+        match update.start() {
+            Ok(()) => {
+                self.allow_close = true;
+                ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+            }
+            Err(error) => self.update_state = UpdateState::Failed(error.to_string()),
+        }
+    }
+
     pub(super) fn release_dialog(&mut self, ctx: &egui::Context) {
         let Some(result) = &self.release_result else {
             return;
         };
         let mut open = true;
-        egui::Window::new(tr("Check for updates"))
+        #[cfg(windows)]
+        let (mut download, mut install) = (None, false);
+        let window = egui::Window::new(tr("Check for updates"))
             .id(egui::Id::unique("release_result"))
-            .open(&mut open)
-            .collapsible(false)
-            .show(ctx, |ui| {
+            .collapsible(false);
+        #[cfg(windows)]
+        let window = if matches!(self.update_state, UpdateState::Downloading) {
+            window
+        } else {
+            window.open(&mut open)
+        };
+        #[cfg(not(windows))]
+        let window = window.open(&mut open);
+        window.show(ctx, |ui| {
                 ui.label(format!("{} {}", tr("Installed version"), display_version()));
                 match result {
-                    ReleaseCheck::Latest { tag, newer } => {
+                    ReleaseCheck::Latest { tag, newer, .. } => {
                         ui.label(format!("{} {tag}", tr("Latest release")));
                         ui.label(tr(if *newer {
                             "An update is available."
                         } else {
                             "You are up to date."
                         }));
-                        ui.hyperlink_to(
-                            tr("Open release on GitHub"),
-                            format!("{GITHUB}/releases/tag/{tag}"),
-                        );
+                        #[cfg(windows)]
+                        let manual = matches!(result, ReleaseCheck::Latest { manifest: None, .. });
+                        #[cfg(not(windows))]
+                        let manual = true;
+                        if *newer && manual {
+                            show_manual_update(ui);
+                        }
+                        if ui.button(tr("Open release on GitHub")).clicked() {
+                            ui.ctx().open_url(egui::OpenUrl::new_tab(format!("{GITHUB}/releases/tag/{tag}")));
+                        }
+                        #[cfg(windows)]
+                        if let ReleaseCheck::Latest { manifest: Some(manifest), .. } = result {
+                            if let UpdateState::Failed(error) = &self.update_state {
+                                ui.label(tr("Could not prepare the update."));
+                                ui.label(error);
+                            }
+                            match &self.update_state {
+                                UpdateState::Idle | UpdateState::Failed(_) => {
+                                    if ui.button(tr("Download update")).clicked() {
+                                        download = Some(manifest.clone());
+                                    }
+                                }
+                                UpdateState::Downloading => {
+                                    ui.horizontal(|ui| {
+                                        ui.spinner();
+                                        ui.label(tr("Downloading and verifying the update…"));
+                                    });
+                                }
+                                UpdateState::Ready(_) => {
+                                    let blocked = self.unsaved() || self.busy || self.saving || self.profile_tools.running;
+                                    if blocked {
+                                        ui.label(tr("Finish file operations and resolve unsaved changes before restarting."));
+                                    }
+                                    install = ui.add_enabled(!blocked, egui::Button::new(tr("Install and restart"))).clicked();
+                                }
+                            }
+                        }
                     }
                     ReleaseCheck::Unpublished => {
                         ui.label(tr("No public release is available."));
                     }
                     ReleaseCheck::Failed => {
                         ui.label(tr("Could not check GitHub. Try again later."));
+                        if ui.button(tr("Open GitHub Releases")).clicked() {
+                            ui.ctx().open_url(egui::OpenUrl::new_tab(format!("{GITHUB}/releases")));
+                        }
                     }
                 }
             });
         if !open {
             self.release_result = None;
+            #[cfg(windows)]
+            {
+                self.update_state = UpdateState::Idle;
+            }
+        }
+        #[cfg(windows)]
+        if let Some(manifest) = download {
+            self.download_update(manifest, ctx);
+        } else if install {
+            self.install_update(ctx);
         }
     }
 }

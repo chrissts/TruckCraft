@@ -383,6 +383,10 @@ impl eframe::App for EditorApp {
         self.missing_save_dialog(&context);
         self.application_settings(&context);
         self.activity.observe(&self.status, &self.error);
+        #[cfg(windows)]
+        if let Some(confirmation) = self.update_confirmation.take() {
+            confirmation.confirm();
+        }
     }
 }
 
