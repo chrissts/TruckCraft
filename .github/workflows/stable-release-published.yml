@@ -1,0 +1,16 @@
+name: Stable release published
+
+on:
+  release:
+    types: [published]
+
+permissions: {}
+
+jobs:
+  stable-release:
+    name: Confirm stable publication
+    if: github.event.release.draft == false && github.event.release.prerelease == false
+    runs-on: ubuntu-26.04
+    steps:
+      - name: Signal the feed publisher
+        run: echo 'A stable release was published.'

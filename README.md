@@ -208,9 +208,12 @@ TruckCraft builds directly from a fresh checkout and can read regional plate art
 
 The [TruckCraft package feeds](https://chrissts.github.io/TruckCraft/) provide
 signed packages for Ubuntu 26.04 x86-64 and compatible derivatives, Fedora 45,
-Arch Linux and CachyOS. Add the feed once to receive later versions through your
-package manager. The [standalone packages](https://github.com/chrissts/TruckCraft/releases/latest)
-are also available for manual updates.
+Arch Linux and CachyOS. After adding the appropriate feed, install with
+`sudo apt-get install truckcraft` on Ubuntu or `sudo dnf install truckcraft`
+on Fedora. GitHub Actions refreshes the feeds when a stable release is published,
+so your package manager can install later versions as part of its normal updates.
+The [standalone packages](https://github.com/chrissts/TruckCraft/releases/latest)
+are also available.
 
 For APT, DNF or pacman, use the [TruckCraft signing key](https://chrissts.github.io/TruckCraft/truckcraft.asc).
 Its OpenPGP fingerprint is `42392E03F1D2049A05E563261E577B6CDF11D3A3`.
@@ -224,8 +227,8 @@ gpg --show-keys --fingerprint truckcraft.asc
 # Compare the fingerprint above before installing the key.
 sudo install -D -m 0644 truckcraft.asc /etc/apt/keyrings/truckcraft.asc
 echo 'deb [arch=amd64 signed-by=/etc/apt/keyrings/truckcraft.asc] https://chrissts.github.io/TruckCraft/debian stable main' | sudo tee /etc/apt/sources.list.d/truckcraft.list
-sudo apt update
-sudo apt install truckcraft
+sudo apt-get update
+sudo apt-get install truckcraft
 ```
 
 </details>
