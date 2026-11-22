@@ -18,7 +18,7 @@
 use std::fmt;
 use std::io::Read;
 
-use aes::cipher::{BlockDecryptMut, KeyIvInit, block_padding::NoPadding};
+use cbc::cipher::{BlockModeDecrypt, KeyIvInit, block_padding::NoPadding};
 use flate2::read::ZlibDecoder;
 
 pub const MAGIC: &[u8; 4] = b"ScsC";
@@ -132,7 +132,7 @@ pub fn decode_with_key(data: &[u8], key: &[u8; 32]) -> Result<Vec<u8>, Error> {
     // Key and IV are fixed size, so construction cannot fail.
     let cipher = Aes256CbcDec::new_from_slices(key, header.iv).expect("fixed key/iv sizes");
     cipher
-        .decrypt_padded_mut::<NoPadding>(&mut buf)
+        .decrypt_padded::<NoPadding>(&mut buf)
         .map_err(|_| Error::Decrypt)?;
 
     // The last cipher block is padded with whatever followed the zlib stream,
