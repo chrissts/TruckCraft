@@ -126,11 +126,12 @@ Test Windows updates in a writable directory using isolated instances and two di
 
 ### Publish Linux update feeds
 
-After publishing a stable GitHub release, run the **Publish Linux update feeds**
-workflow from `main`. It checks the published release asset digests and builds
-signed APT, DNF, pacman and Flatpak repositories from those exact packages. The
-GitHub Pages deployment replaces the feeds together. The standalone Downloads
-on GitHub Releases remain available.
+Publishing a stable GitHub release automatically starts **Publish Linux update
+feeds** on `main`. Drafts and prereleases leave the feeds alone. The workflow
+checks the latest stable release asset digests and builds signed APT, DNF,
+pacman and Flatpak repositories from those packages. GitHub Pages deploys the
+feeds together. The workflow can also be run manually from `main` to redeploy
+the latest stable release.
 
 The workflow uses the `LINUX_REPOSITORY_SIGNING_KEY` secret in the
 `linux-repository` environment, which allows deployments from `main`. The
