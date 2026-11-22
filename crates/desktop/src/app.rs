@@ -198,7 +198,7 @@ pub struct EditorApp {
     pending: Option<Pending>,
     allow_close: bool,
     about: bool,
-    checking_release: bool,
+    checking_release: Option<updates::CheckOrigin>,
     release_result: Option<updates::ReleaseCheck>,
     #[cfg(windows)]
     update_state: updates::UpdateState,
@@ -249,7 +249,7 @@ impl EditorApp {
             pending: None,
             allow_close: false,
             about: false,
-            checking_release: false,
+            checking_release: None,
             release_result: None,
             #[cfg(windows)]
             update_state: updates::UpdateState::Idle,
@@ -562,8 +562,10 @@ impl EditorApp {
             }
             match task {
                 Task::ReleaseChecked(result) => {
-                    self.checking_release = false;
-                    self.release_result = Some(result);
+                    self.release_result = self
+                        .checking_release
+                        .take()
+                        .and_then(|origin| result.visible(origin));
                 }
                 #[cfg(windows)]
                 Task::UpdateDownloaded(result) => {

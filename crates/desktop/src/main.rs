@@ -55,10 +55,14 @@ fn main() -> eframe::Result {
     let result = eframe::run_native(
         &format!("{APP_NAME} {}", display_version()),
         options,
-        Box::new(|context| {
+        Box::new(move |context| {
             let app = app::EditorApp::new(context);
             #[cfg(windows)]
             let app = app.with_update_confirmation(windows_update::Startup::from_args());
+            let mut app = app;
+            if !isolated {
+                app.check_release_on_launch(&context.egui_ctx);
+            }
             Ok(Box::new(app))
         }),
     );

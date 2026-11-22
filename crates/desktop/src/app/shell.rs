@@ -97,11 +97,13 @@ impl EditorApp {
                         {
                             self.activity.open = true;
                         }
+                        let checking_manually =
+                            self.checking_release == Some(updates::CheckOrigin::Manual);
                         if ui
                             .add_enabled(
-                                !self.checking_release,
+                                !checking_manually,
                                 egui::Button::new(
-                                    RichText::new(tr(if self.checking_release {
+                                    RichText::new(tr(if checking_manually {
                                         "Checking for updates…"
                                     } else {
                                         "Check for updates"
