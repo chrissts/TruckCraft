@@ -1,8 +1,8 @@
 # TruckCraft contributor instructions
 
 TruckCraft is a native Rust save editor for Euro Truck Simulator 2 and American
-Truck Simulator. Its displayed app version is **1.0**, and its Cargo package
-version is **1.0.0**. The simulator compatibility target is **ETS2 and ATS 1.62.x**.
+Truck Simulator. Its displayed app and Cargo package versions are **1.0.1**.
+The simulator compatibility target is **ETS2 and ATS 1.62.x**.
 
 ## Repository and provenance
 
