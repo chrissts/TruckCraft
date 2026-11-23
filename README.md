@@ -2,7 +2,7 @@
   <img src="docs/brand/truckcraft-icon.png" width="128" alt="TruckCraft icon">
 </p>
 
-<h1 align="center">TruckCraft</h1>
+<h1 align="center">TruckCraft — ETS2 &amp; ATS Save Editor</h1>
 
 <p align="center">
   <strong>A native Rust save editor for Euro Truck Simulator 2 and American Truck Simulator.</strong><br>
