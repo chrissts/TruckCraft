@@ -94,7 +94,8 @@ Formatted status messages and some dynamic labels still need catalog entries.
 ## Verification and release hygiene
 
 Install the hooks with `pre-commit install`. Run `pre-commit run` against
-staged files before committing and resolve any reported failures.
+staged files before committing and resolve any reported failures. GitHub Actions
+runs the same hooks on files changed by a pull request.
 
 Run the checks appropriate to the change:
 
