@@ -15,7 +15,8 @@
   <a href="#downloads"><img src="https://img.shields.io/badge/Ubuntu_%2F_Debian-.deb-A81D33?style=flat-square&amp;logo=debian&amp;logoColor=white" alt="Ubuntu and Debian DEB package"></a>
   <a href="#downloads"><img src="https://img.shields.io/badge/Arch_%2F_CachyOS-pacman-13799E?style=flat-square&amp;logo=archlinux&amp;logoColor=white" alt="Arch Linux and CachyOS pacman package"></a>
   <a href="#downloads"><img src="https://img.shields.io/badge/Flatpak-experimental-996B16?style=flat-square&amp;logo=flatpak&amp;logoColor=white" alt="Experimental Linux Flatpak bundle"></a>
-  <a href="https://github.com/chrissts/TruckCraft/actions/workflows/package-check.yml"><img src="https://img.shields.io/badge/macOS-CI_only-555555?style=flat-square&amp;logo=apple&amp;logoColor=white" alt="Universal macOS build available through GitHub Actions only"></a>
+  <a href="#downloads"><img src="https://img.shields.io/badge/AppImage-x86--64-39734F?style=flat-square&amp;logo=linux&amp;logoColor=white" alt="Portable Linux AppImage for x86-64"></a>
+  <a href="https://github.com/chrissts/TruckCraft/actions/workflows/package-check.yml"><img src="https://img.shields.io/badge/macOS-devs_required-996B16?style=flat-square&amp;logo=apple&amp;logoColor=white" alt="macOS developers required"></a>
 </p>
 
 <p align="center">
@@ -67,7 +68,7 @@ Download TruckCraft from the [latest GitHub release](https://github.com/chrissts
 
 **Opening TruckCraft on Windows.** I don’t have a Windows code-signing certificate, so `TruckCraft.exe` is unsigned. Windows may show **Unknown publisher** or Microsoft Defender SmartScreen’s **Windows protected your PC** prompt. If you downloaded the executable from the official release linked above and choose to run it, select **More info → Run anyway** when SmartScreen offers that option. If Defender reports a specific threat or quarantines the file, leave it blocked. [How SmartScreen works](https://learn.microsoft.com/windows/apps/package-and-deploy/smartscreen-reputation)
 
-**macOS** is available as an opt-in universal test build from GitHub Actions, with automated smoke tests on Apple Silicon and Intel runners. Hands-on testing on a Mac is still pending. [macOS test builds](https://github.com/chrissts/TruckCraft/actions/workflows/package-check.yml)
+**macOS developers wanted.** The opt-in universal build passes automated smoke tests on Apple Silicon and Intel runners. We’re looking for developers who can test it on real Macs and report what they find. [macOS test builds](https://github.com/chrissts/TruckCraft/actions/workflows/package-check.yml) · [Share test results](https://github.com/chrissts/TruckCraft/issues)
 
 The Linux packages are checked on Fedora 45, Ubuntu 26.04, Arch Linux, and CachyOS. Other distributions need compatible system libraries.
 
