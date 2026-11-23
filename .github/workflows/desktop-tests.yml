@@ -8,8 +8,40 @@ permissions:
   contents: read
 
 jobs:
+  changes:
+    name: Pre-commit
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-26.04
+    outputs:
+      markdown_only: ${{ steps.diff.outputs.markdown_only }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - id: diff
+        name: Check the pull request merge diff
+        shell: bash
+        run: |
+          if git diff --quiet --no-renames HEAD^1 HEAD -- . ':(exclude,glob,icase)**/*.md'; then
+            echo 'markdown_only=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Install Rust formatting tools
+        if: steps.diff.outputs.markdown_only != 'true'
+        run: rustup toolchain install 1.100.0 --profile minimal --component rustfmt
+      - name: Check changed files
+        shell: bash
+        env:
+          RUSTUP_TOOLCHAIN: 1.100.0
+        run: |
+          python3 -m venv "$RUNNER_TEMP/pre-commit"
+          "$RUNNER_TEMP/pre-commit/bin/python" -m pip install pre-commit==4.7.0
+          "$RUNNER_TEMP/pre-commit/bin/pre-commit" run --from-ref HEAD^1 --to-ref HEAD
+
   test:
     name: Workspace tests on ${{ matrix.os }}
+    needs: changes
+    if: ${{ always() && needs.changes.outputs.markdown_only != 'true' }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
