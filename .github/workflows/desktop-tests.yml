@@ -63,3 +63,29 @@ jobs:
 
       - name: Run workspace tests
         run: cargo +1.100.0 test --locked --workspace
+
+  desktop-checks:
+    name: Desktop checks
+    needs: [changes, test]
+    if: ${{ always() }}
+    runs-on: ubuntu-26.04
+    steps:
+      - name: Verify required results
+        shell: bash
+        env:
+          PRE_COMMIT_RESULT: ${{ needs.changes.result }}
+          MARKDOWN_ONLY: ${{ needs.changes.outputs.markdown_only }}
+          TEST_RESULT: ${{ needs.test.result }}
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == pull_request && "$PRE_COMMIT_RESULT" != success ]]; then
+            echo '::error::Pre-commit checks must pass.'
+            exit 1
+          fi
+          if [[ "$MARKDOWN_ONLY" == true && "$TEST_RESULT" == skipped ]]; then
+            echo 'Markdown-only changes passed pre-commit.'
+            exit 0
+          fi
+          if [[ "$TEST_RESULT" != success ]]; then
+            echo '::error::All desktop test jobs must pass.'
+            exit 1
+          fi
