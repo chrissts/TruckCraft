@@ -7,6 +7,8 @@ use ts_save_core::discovery::{self, Catalog};
 #[serde(default)]
 struct Preferences {
     logging_enabled: bool,
+    #[serde(deserialize_with = "stored_update_checks")]
+    check_updates_on_launch: Option<bool>,
     #[serde(deserialize_with = "stored_language")]
     language: String,
     last_game: Option<Game>,
@@ -14,6 +16,13 @@ struct Preferences {
     roots: Vec<(Game, PathBuf)>,
     include_backups: bool,
 }
+
+fn stored_update_checks<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> std::result::Result<Option<bool>, D::Error> {
+    Ok(serde_json::Value::deserialize(deserializer)?.as_bool())
+}
+
 fn stored_language<'de, D: serde::Deserializer<'de>>(
     deserializer: D,
 ) -> std::result::Result<String, D::Error> {
@@ -24,6 +33,7 @@ impl Default for Preferences {
     fn default() -> Self {
         Self {
             logging_enabled: true,
+            check_updates_on_launch: None,
             language: "en".into(),
             last_game: None,
             last_saves: Vec::new(),
@@ -51,6 +61,17 @@ fn preference_path() -> Option<PathBuf> {
     crate::activity::preference_path()
 }
 impl Browser {
+    pub fn check_updates_on_launch(&self) -> Option<bool> {
+        self.preferences.check_updates_on_launch
+    }
+    pub fn set_check_updates_on_launch(&mut self, enabled: bool, persist: bool) -> Result<()> {
+        let old = self.preferences.check_updates_on_launch.replace(enabled);
+        if persist && let Err(error) = self.persist() {
+            self.preferences.check_updates_on_launch = old;
+            return Err(error);
+        }
+        Ok(())
+    }
     pub fn language(&self) -> &str {
         &self.preferences.language
     }
@@ -484,6 +505,29 @@ impl EditorApp {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn update_check_consent_is_explicit_and_keeps_other_preferences() {
+        for input in [
+            serde_json::json!({"last_game":"ATS"}),
+            serde_json::json!({"last_game":"ATS","check_updates_on_launch":"true"}),
+        ] {
+            let preferences: Preferences = serde_json::from_value(input).unwrap();
+            assert_eq!(preferences.check_updates_on_launch, None);
+            assert_eq!(preferences.last_game, Some(Game::Ats));
+        }
+        let folder = tempfile::tempdir().unwrap();
+        let path = folder.path().join("settings.json");
+        let mut browser = Browser::new(true);
+        assert_eq!(browser.check_updates_on_launch(), None);
+        for enabled in [false, true] {
+            browser.set_check_updates_on_launch(enabled, false).unwrap();
+            browser.persist_to(&path).unwrap();
+            let saved: Preferences =
+                serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+            assert_eq!(saved.check_updates_on_launch, Some(enabled));
+        }
+    }
 
     #[test]
     fn logging_preference_persists_and_invalid_languages_keep_other_preferences() {

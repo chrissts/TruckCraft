@@ -86,6 +86,17 @@ impl EditorApp {
                     }
                 }
                 ui.hyperlink_to(tr("Want another language? Submit a translation PR."), concat!("https://github.com/chrissts/TruckCraft", "/blob/main/AGENTS.md#add-a-language"));
+                if !self.isolated {
+                    ui.separator();
+                    ui.heading(tr("Automatic update checks"));
+                    let mut enabled=self.browser.check_updates_on_launch().unwrap_or(false);
+                    if ui.checkbox(&mut enabled,tr("Check for updates at launch")).changed()
+                        && let Err(error)=self.browser.set_check_updates_on_launch(enabled,true)
+                    {
+                        self.error=Some(error.to_string());
+                    }
+                    ui.label(tr("TruckCraft can contact GitHub over the internet at launch to check for a newer version."));
+                }
                 ui.separator();
                 self.game_data_controls(ui);
                 ui.separator();ui.heading(tr("Activity log"));

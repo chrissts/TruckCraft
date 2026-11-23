@@ -384,6 +384,7 @@ impl eframe::App for EditorApp {
         self.settings_dialog(&context);
         self.missing_save_dialog(&context);
         self.application_settings(&context);
+        self.update_consent_dialog(&context);
         self.activity.observe(&self.status, &self.error);
         #[cfg(windows)]
         if let Some(confirmation) = self.update_confirmation.take() {

@@ -199,6 +199,7 @@ pub struct EditorApp {
     allow_close: bool,
     about: bool,
     checking_release: Option<updates::CheckOrigin>,
+    update_consent: Option<bool>,
     release_result: Option<updates::ReleaseCheck>,
     #[cfg(windows)]
     update_state: updates::UpdateState,
@@ -225,6 +226,8 @@ impl EditorApp {
         design::configure(&context.egui_ctx);
         let isolated = crate::isolated_launch();
         let browser = browser::Browser::new(isolated);
+        let update_consent =
+            (!isolated && browser.check_updates_on_launch().is_none()).then_some(true);
         let activity = settings_ui::SettingsUi::new(isolated, browser.logging_enabled());
         let (tx, rx) = mpsc::channel();
         let mut app = Self {
@@ -250,6 +253,7 @@ impl EditorApp {
             allow_close: false,
             about: false,
             checking_release: None,
+            update_consent,
             release_result: None,
             #[cfg(windows)]
             update_state: updates::UpdateState::Idle,
