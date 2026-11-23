@@ -208,8 +208,8 @@ To enable local checks, [install pre-commit](https://pre-commit.com/#install) an
 run `pre-commit install` from the repository root. The hooks check staged files
 for syntax, whitespace, merge markers, and private keys. Rust changes also run
 `cargo fmt --check` using the installed Rust toolchain with `rustfmt`.
-Use a pull request title that describes the change, such as “Add a support badge
-to the README.”
+Use a Conventional Commits-style pull request title such as
+`docs: add a support badge to the README`.
 
 TruckCraft asks before enabling automatic update checks. **Check for updates at launch** is ticked by default and takes effect when you select **Continue**. When enabled, TruckCraft contacts GitHub in the background at launch and shows a dialog if a newer version is available. Change your choice in Settings or select **Check for updates** beside Settings to check manually. On Windows, download a verified update and choose **Install and restart** once pending save edits are resolved. On Linux, use your package manager after [setting up the repository](#linux-updates), or open the release and download the matching package. The dialog also links to macOS test builds and to manual downloads for Windows releases without verified update metadata.
 
@@ -295,7 +295,7 @@ copy first without the `--delete-data` option, then install the repository build
 
 TruckCraft 1.0.3 targets **ETS2 1.62.x**, **ATS 1.62.x** and **save format 105**. About shows the loaded save’s actual format. Game updates, DLC, maps and mods can affect compatibility. Advanced vehicle parts, game-definition catalogs and some translations are incomplete.
 
-The [desktop test workflow](.github/workflows/desktop-tests.yml) runs the workspace suite on Windows, Ubuntu, Apple Silicon and Intel macOS for pull requests or a manual run. Pull requests that only change Markdown files skip the workspace suite. In-game loading and a standalone run on a clean Windows installation remain release checks. See the [contributor checks](AGENTS.md#release-validation).
+The [desktop test workflow](.github/workflows/desktop-tests.yml) runs the workspace suite on Windows and Ubuntu for pull requests or a manual run. Pull requests that only change Markdown files run pre-commit and skip the workspace suite. In-game loading and a standalone run on a clean Windows installation remain release checks. See the [contributor checks](AGENTS.md#release-validation).
 
 ## Support and attribution
 
