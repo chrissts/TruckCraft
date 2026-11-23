@@ -204,7 +204,7 @@ For a separately installed Windows GNU toolchain, use the wrapper to remap local
 
 TruckCraft builds directly from a fresh checkout and can read regional plate artwork from a local game installation. Local builds can also use a complete set of separately supplied game artwork. [Artwork and provenance](crates/desktop/assets/ARTWORK.md)
 
-TruckCraft checks GitHub in the background at launch and shows a dialog when a newer version is available. You can also select **Check for updates** beside Settings at any time. On Windows, download a verified update and choose **Install and restart** once pending save edits are resolved. On Linux, use your package manager after [setting up the repository](#linux-updates), or open the release and download the matching package. The dialog also links to macOS test builds and to manual downloads for Windows releases without verified update metadata.
+TruckCraft asks before enabling automatic update checks. **Check for updates at launch** is ticked by default and takes effect when you select **Continue**. When enabled, TruckCraft contacts GitHub in the background at launch and shows a dialog if a newer version is available. Change your choice in Settings or select **Check for updates** beside Settings to check manually. On Windows, download a verified update and choose **Install and restart** once pending save edits are resolved. On Linux, use your package manager after [setting up the repository](#linux-updates), or open the release and download the matching package. The dialog also links to macOS test builds and to manual downloads for Windows releases without verified update metadata.
 
 ## Linux updates
 
@@ -286,7 +286,7 @@ copy first without the `--delete-data` option, then install the repository build
 
 ## Compatibility and verification
 
-TruckCraft 1.0.2 targets **ETS2 1.62.x**, **ATS 1.62.x** and **save format 105**. About shows the loaded save’s actual format. Game updates, DLC, maps and mods can affect compatibility. Advanced vehicle parts, game-definition catalogs and some translations are incomplete.
+TruckCraft 1.0.3 targets **ETS2 1.62.x**, **ATS 1.62.x** and **save format 105**. About shows the loaded save’s actual format. Game updates, DLC, maps and mods can affect compatibility. Advanced vehicle parts, game-definition catalogs and some translations are incomplete.
 
 The [desktop test workflow](.github/workflows/desktop-tests.yml) runs the workspace suite on Windows, Ubuntu, Apple Silicon and Intel macOS for pull requests or a manual run. In-game loading and a standalone run on a clean Windows installation remain release checks. See the [contributor checks](AGENTS.md#release-validation).
 

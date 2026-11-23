@@ -162,7 +162,33 @@ impl EditorApp {
     }
 
     pub(crate) fn check_release_on_launch(&mut self, ctx: &egui::Context) {
-        self.start_release_check(ctx, CheckOrigin::Startup);
+        if !self.isolated && self.browser.check_updates_on_launch() == Some(true) {
+            self.start_release_check(ctx, CheckOrigin::Startup);
+        }
+    }
+
+    pub(super) fn update_consent_dialog(&mut self, ctx: &egui::Context) {
+        let Some(checked) = &mut self.update_consent else {
+            return;
+        };
+        let accepted = egui::Modal::new(egui::Id::unique("update_check_consent"))
+            .show(ctx, |ui| {
+                ui.set_width(420.0);
+                ui.heading(tr("Automatic update checks"));
+                ui.label(tr("TruckCraft can contact GitHub over the internet at launch to check for a newer version."));
+                ui.checkbox(checked, tr("Check for updates at launch"));
+                ui.label(tr("You can change this choice in Settings."));
+                design::primary(ui, tr("Continue"), true).clicked()
+            })
+            .inner;
+        if accepted {
+            let enabled = *checked;
+            self.update_consent = None;
+            match self.browser.set_check_updates_on_launch(enabled, true) {
+                Ok(()) => self.check_release_on_launch(ctx),
+                Err(error) => self.error = Some(error.to_string()),
+            }
+        }
     }
 
     fn start_release_check(&mut self, ctx: &egui::Context, origin: CheckOrigin) {
@@ -319,6 +345,28 @@ impl EditorApp {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn startup_skips_checks_without_consent_and_in_isolated_mode() {
+        let context = egui::Context::default();
+        let mut app = EditorApp::new(&eframe::CreationContext::_new_kittest(context.clone()));
+        app.browser = crate::app::browser::Browser::new(true);
+        app.isolated = false;
+        app.check_release_on_launch(&context);
+        assert!(app.checking_release.is_none());
+        app.browser
+            .set_check_updates_on_launch(false, false)
+            .unwrap();
+        app.check_release_on_launch(&context);
+        assert!(app.checking_release.is_none());
+
+        app.isolated = true;
+        app.browser
+            .set_check_updates_on_launch(true, false)
+            .unwrap();
+        app.check_release_on_launch(&context);
+        assert!(app.checking_release.is_none());
+    }
 
     #[test]
     fn launch_only_shows_a_newer_release() {
