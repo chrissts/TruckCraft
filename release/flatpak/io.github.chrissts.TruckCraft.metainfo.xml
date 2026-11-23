@@ -10,6 +10,7 @@
   </description>
   <launchable type="desktop-id">io.github.chrissts.TruckCraft.desktop</launchable>
   <releases>
+    <release version="1.0.4" date="2026-11-23"/>
     <release version="1.0.3" date="2026-11-23"/>
     <release version="1.0.2" date="2026-11-22"/>
     <release version="1.0.1" date="2026-11-22"/>
