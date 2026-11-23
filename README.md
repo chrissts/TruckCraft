@@ -63,7 +63,7 @@ Download TruckCraft from the [latest GitHub release](https://github.com/chrissts
 | Ubuntu, Debian, and their derivatives (x86-64) | `TruckCraft.deb` | Install with `sudo apt install ./TruckCraft.deb`. |
 | Arch Linux and CachyOS (x86-64) | `TruckCraft.pkg.tar.zst` | Install with `sudo pacman -U ./TruckCraft.pkg.tar.zst`. |
 | Linux with Flatpak (x86-64, experimental) | `TruckCraft.flatpak` | Install with `flatpak install --user ./TruckCraft.flatpak`. |
-| Portable Linux (x86-64, experimental) | `TruckCraft.AppImage` | When listed in the release assets, make it executable with `chmod +x TruckCraft.AppImage` and run `./TruckCraft.AppImage`. |
+| Portable Linux (x86-64) | `TruckCraft.AppImage` | Make it executable with `chmod +x TruckCraft.AppImage`, then run `./TruckCraft.AppImage`. |
 
 **Opening TruckCraft on Windows.** I don’t have a Windows code-signing certificate, so `TruckCraft.exe` is unsigned. Windows may show **Unknown publisher** or Microsoft Defender SmartScreen’s **Windows protected your PC** prompt. If you downloaded the executable from the official release linked above and choose to run it, select **More info → Run anyway** when SmartScreen offers that option. If Defender reports a specific threat or quarantines the file, leave it blocked. [How SmartScreen works](https://learn.microsoft.com/windows/apps/package-and-deploy/smartscreen-reputation)
 
@@ -76,7 +76,7 @@ the host’s GTK 3 and graphics libraries. If FUSE is unavailable, run
 `./TruckCraft.AppImage --appimage-extract-and-run`. Download the new file from GitHub
 when updating. [About AppImage and FUSE](https://docs.appimage.org/user-guide/troubleshooting/fuse.html)
 
-- **Bazzite.** Try the experimental `TruckCraft.flatpak` first. For `TruckCraft.rpm`, Bazzite recommends a Fedora Distrobox. Use Fedora 45 to match TruckCraft’s RPM tests. You can also install the RPM on the host with `rpm-ostree` if its dependencies resolve. Host installation requires a reboot. TruckCraft testing on Bazzite is pending. [Bazzite’s RPM guide](https://docs.bazzite.gg/Installing_and_Managing_Software/rpm-ostree/)
+- **Bazzite 45 (container-tested).** Use `TruckCraft.AppImage` for a portable launch. The AppImage in extract-and-run mode and the RPM installed with DNF both passed save discovery, editing, and recovery checks with synthetic native and Proton saves. For the RPM, use a Fedora 45 Distrobox to avoid layering packages on the host. Installing with `rpm-ostree` on a booted Bazzite system remains untested and requires a reboot. [Bazzite’s AppImage guide](https://docs.bazzite.gg/Installing_and_Managing_Software/AppImage/) · [Bazzite’s RPM guide](https://docs.bazzite.gg/Installing_and_Managing_Software/rpm-ostree/)
 - **SteamOS (experimental).** In Desktop Mode, use the Flatpak download and run the install command in Konsole. The bundle passed automated Linux sandbox tests. Testing on SteamOS and Steam Deck hardware is still pending. [Valve’s SteamOS desktop FAQ](https://help.steampowered.com/en/faqs/view/671A-4453-E8D2-323C)
 
 ## Start using TruckCraft
