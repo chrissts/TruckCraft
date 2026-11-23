@@ -19,6 +19,10 @@
 </p>
 
 <p align="center">
+  <a href="https://buymeacoffee.com/truckcraft"><img src="https://img.shields.io/badge/Buy_me_a_coffee-Support_TruckCraft-FFDD00?style=flat-square&amp;logo=buymeacoffee&amp;logoColor=white" alt="Buy me a coffee to support TruckCraft"></a>
+</p>
+
+<p align="center">
   <a href="#features">Features</a> ·
   <a href="#downloads">Downloads</a> ·
   <a href="#start-using-truckcraft">Get started</a> ·
