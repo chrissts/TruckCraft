@@ -137,7 +137,8 @@ impl Prepared {
         let stage = tempfile::Builder::new().prefix(PREFIX).tempdir_in(parent)?;
         let candidate = stage.path().join(UPDATE_EXE);
         let url = format!(
-            "https://github.com/chrissts/TruckCraft/releases/download/{}/TruckCraft.exe",
+            "{}/releases/download/{}/TruckCraft.exe",
+            crate::app::GITHUB,
             manifest.tag
         );
         let curl = PathBuf::from(

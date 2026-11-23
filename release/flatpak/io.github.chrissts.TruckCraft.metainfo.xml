@@ -9,7 +9,6 @@
     <p>TruckCraft edits local simulator profiles, company balances, fleets, and active journeys. Review changes before saving, undo or redo edits, and recover a backup into a separate profile.</p>
   </description>
   <launchable type="desktop-id">io.github.chrissts.TruckCraft.desktop</launchable>
-  <url type="homepage">https://github.com/chrissts/TruckCraft</url>
   <releases>
     <release version="1.0.3" date="2026-11-23"/>
     <release version="1.0.2" date="2026-11-22"/>

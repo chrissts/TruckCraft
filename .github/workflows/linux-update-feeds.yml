@@ -51,6 +51,9 @@ jobs:
     if: needs.check-trigger.outputs.publish == 'true'
     runs-on: ubuntu-26.04
     environment: linux-repository
+    permissions:
+      contents: read
+      pages: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -60,9 +63,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends apt-utils createrepo-c flatpak gnupg libarchive-tools makepkg ostree pacman-package-manager rpm zstd
       - name: Fetch and verify the latest stable release
+        id: distribution
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          pages_url=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq '.html_url')
+          test -n "$pages_url"
+          printf 'pages_url=%s\n' "$pages_url" >> "$GITHUB_OUTPUT"
           gh api "repos/$GITHUB_REPOSITORY/releases/latest" > "$RUNNER_TEMP/release.json"
           tag=$(jq -er 'select(.draft == false and .prerelease == false) | .tag_name' "$RUNNER_TEMP/release.json")
           gh release download --repo "$GITHUB_REPOSITORY" --dir "$RUNNER_TEMP/assets" \
@@ -79,6 +86,7 @@ jobs:
       - name: Build signed repositories
         env:
           LINUX_REPOSITORY_SIGNING_KEY: ${{ secrets.LINUX_REPOSITORY_SIGNING_KEY }}
+          PAGES_URL: ${{ steps.distribution.outputs.pages_url }}
         run: |
           export GNUPGHOME=$(mktemp -d)
           trap 'gpgconf --kill all; rm -rf -- "$GNUPGHOME"' EXIT
@@ -88,7 +96,7 @@ jobs:
           fingerprint=$(cat release/linux-repository-fingerprint.txt)
           tag=$(jq -er '.tag_name' "$RUNNER_TEMP/release.json")
           bash release/build-linux-repositories.sh "$RUNNER_TEMP/assets" "$RUNNER_TEMP/site" \
-            "$tag" "$fingerprint" https://chrissts.github.io/TruckCraft
+            "$tag" "$fingerprint" "$PAGES_URL" "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY"
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: ${{ runner.temp }}/site

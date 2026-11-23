@@ -6,8 +6,22 @@ use std::process::{Command, Stdio};
 #[cfg(windows)]
 use crate::windows_update::{Manifest, Prepared, Startup};
 
-const API: &str = "https://api.github.com/repos/chrissts/TruckCraft/releases/latest";
 const LIMIT: usize = 1024 * 1024;
+
+fn latest_release_api(project_url: &str) -> Option<String> {
+    let project = project_url.strip_prefix("https://github.com/")?;
+    let (owner, repo) = project.split_once('/')?;
+    let valid = |segment: &str| {
+        !segment.is_empty()
+            && segment != "."
+            && segment != ".."
+            && segment
+                .bytes()
+                .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'_' | b'-'))
+    };
+    (valid(owner) && valid(repo))
+        .then(|| format!("https://api.github.com/repos/{project}/releases/latest"))
+}
 
 fn show_manual_update(ui: &mut egui::Ui) {
     if cfg!(target_os = "macos") {
@@ -101,6 +115,7 @@ fn parse_release(body: &[u8], status: &[u8]) -> ReleaseCheck {
 }
 
 fn fetch() -> Option<ReleaseCheck> {
+    let api = latest_release_api(GITHUB)?;
     #[cfg(windows)]
     let mut command = {
         use std::os::windows::process::CommandExt;
@@ -115,9 +130,14 @@ fn fetch() -> Option<ReleaseCheck> {
         .args([
             "--disable",
             "--silent",
+            "--location",
+            "--max-redirs",
+            "3",
             "--max-time",
             "12",
             "--proto",
+            "=https",
+            "--proto-redir",
             "=https",
             "--user-agent",
             concat!("TruckCraft/", env!("CARGO_PKG_VERSION")),
@@ -125,8 +145,8 @@ fn fetch() -> Option<ReleaseCheck> {
             "Accept: application/vnd.github+json",
             "--write-out",
             "\\n%{http_code}",
-            API,
         ])
+        .arg(api)
         .stdin(Stdio::null())
         .stderr(Stdio::null())
         .stdout(Stdio::piped())
@@ -345,6 +365,21 @@ impl EditorApp {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn release_api_uses_the_configured_repository() {
+        assert_eq!(
+            latest_release_api("https://github.com/new-owner/new-name").as_deref(),
+            Some("https://api.github.com/repos/new-owner/new-name/releases/latest"),
+        );
+        for invalid in [
+            "https://example.com/owner/repo",
+            "https://github.com/owner/repo/releases",
+            "https://github.com/owner/repo?other",
+        ] {
+            assert!(latest_release_api(invalid).is_none());
+        }
+    }
 
     #[test]
     fn startup_skips_checks_without_consent_and_in_isolated_mode() {
