@@ -3,8 +3,17 @@ set -euo pipefail
 
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$root"
-platform=${1:?Usage: bash release/build-unix.sh ubuntu\|fedora\|arch\|macos}
+platform=${1:?Usage: bash release/build-unix.sh ubuntu\|fedora\|arch\|appimage\|macos}
 case "$platform:$(uname -s)" in
+    appimage:Linux)
+        # shellcheck disable=SC1091
+        . /etc/os-release
+        if [[ "$ID" != ubuntu || "$VERSION_ID" != 26.04 || "$(uname -m)" != x86_64 ]]; then
+            echo 'Build the AppImage on Ubuntu 26.04 x86-64.' >&2
+            exit 1
+        fi
+        targets=(x86_64-unknown-linux-gnu)
+        ;;
     ubuntu:Linux|fedora:Linux|arch:Linux)
         # shellcheck disable=SC1091
         . /etc/os-release

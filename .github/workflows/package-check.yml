@@ -27,6 +27,7 @@ jobs:
           - { platform: fedora, label: 'Fedora 45 (container)', package: 'TruckCraft-Fedora*.rpm', runner: ubuntu-26.04, container: 'fedora:45' }
           - { platform: arch, label: 'Arch Linux (container)', package: TruckCraft.pkg.tar.zst, runner: ubuntu-26.04, container: 'archlinux:base-devel' }
           - { platform: flatpak, label: Flatpak, package: TruckCraft.flatpak, runner: ubuntu-26.04 }
+          - { platform: appimage, label: AppImage x86-64, package: TruckCraft.AppImage, runner: ubuntu-26.04 }
     runs-on: ${{ matrix.runner }}
     container: ${{ matrix.container }}
     steps:
@@ -43,8 +44,11 @@ jobs:
         if: matrix.platform == 'ubuntu' && inputs.draft_release
         run: python3 release/render-notes.py > /dev/null
       - name: Install Ubuntu build dependencies
-        if: matrix.platform == 'ubuntu'
+        if: matrix.platform == 'ubuntu' || matrix.platform == 'appimage'
         run: sudo apt-get update && sudo apt-get install -y libgtk-3-dev libegl-dev libgl-dev libxkbcommon-dev libwayland-dev libfontconfig1-dev libdbus-1-dev dpkg-dev desktop-file-utils
+      - name: Install SquashFS tools
+        if: matrix.platform == 'appimage'
+        run: sudo apt-get install -y squashfs-tools
       - name: Build Windows GNU package
         if: matrix.platform == 'windows'
         shell: pwsh
@@ -105,6 +109,7 @@ jobs:
           - { platform: fedora, label: 'Fedora 45 (container)', package: 'TruckCraft-Fedora*.rpm', runner: ubuntu-26.04, container: 'fedora:45' }
           - { platform: arch, label: 'Arch Linux (container)', package: TruckCraft.pkg.tar.zst, runner: ubuntu-26.04, container: 'archlinux:base-devel' }
           - { platform: flatpak, label: Flatpak, package: TruckCraft.flatpak, runner: ubuntu-26.04 }
+          - { platform: appimage, label: AppImage x86-64, package: TruckCraft.AppImage, runner: ubuntu-26.04 }
           - { platform: cachyos, label: 'CachyOS (container)', package: TruckCraft.pkg.tar.zst, runner: ubuntu-26.04, container: 'cachyos/cachyos' }
     runs-on: ${{ matrix.runner }}
     container: ${{ matrix.container }}
@@ -176,6 +181,23 @@ jobs:
           flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
           flatpak install --user --noninteractive -y incoming/TruckCraft.flatpak
           dbus-run-session -- xvfb-run -a env -u WAYLAND_DISPLAY -u WAYLAND_SOCKET bash release/test-flatpak.sh
+      - name: Run the AppImage with native and Proton save folders
+        if: matrix.platform == 'appimage'
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-0t64 libegl1 libgl1 libxkbcommon-x11-0 libgl1-mesa-dri xvfb xauth
+          chmod +x incoming/TruckCraft.AppImage
+          test_home=$(mktemp -d)
+          trap 'rm -rf -- "$test_home"' EXIT
+          export XDG_DATA_HOME="$test_home/data"
+          native="$XDG_DATA_HOME/Euro Truck Simulator 2"
+          proton="$XDG_DATA_HOME/Steam/steamapps/compatdata/227300/pfx/drive_c/users/steamuser/Documents/Euro Truck Simulator 2"
+          mkdir -p -- "$native" "$proton"
+          for saves in "$native" "$proton"; do
+            xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 TMPDIR="$saves" TRUCKCRAFT_CHECK_SAVE_DISCOVERY=default \
+              incoming/TruckCraft.AppImage --appimage-extract-and-run --package-check
+          done
 
   macos-build:
     name: Build · macOS Universal
@@ -240,7 +262,7 @@ jobs:
           persist-credentials: false
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
-          pattern: 'TruckCraft{*-Windows-x64.zip,-Fedora*.rpm,-Ubuntu*.deb,.pkg.tar.zst,.flatpak}'
+          pattern: 'TruckCraft{*-Windows-x64.zip,-Fedora*.rpm,-Ubuntu*.deb,.pkg.tar.zst,.flatpak,.AppImage}'
           merge-multiple: true
           skip-decompress: true
           path: incoming
@@ -260,12 +282,14 @@ jobs:
           cp incoming/TruckCraft-Ubuntu26.04-amd64.deb release-assets/TruckCraft.deb
           cp incoming/TruckCraft.pkg.tar.zst release-assets/TruckCraft.pkg.tar.zst
           cp incoming/TruckCraft.flatpak release-assets/TruckCraft.flatpak
+          cp incoming/TruckCraft.AppImage release-assets/TruckCraft.AppImage
           assets=(
             "release-assets/TruckCraft.exe"
             "release-assets/TruckCraft.rpm"
             "release-assets/TruckCraft.deb"
             "release-assets/TruckCraft.pkg.tar.zst"
             "release-assets/TruckCraft.flatpak"
+            "release-assets/TruckCraft.AppImage"
           )
           for asset in "${assets[@]}"; do
             test -s "$asset"

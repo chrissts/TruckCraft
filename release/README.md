@@ -12,6 +12,7 @@ The packaging script requires Python 3.11 or later.
 | Fedora x86-64 | `.rpm` | Fedora 45 |
 | Arch Linux and CachyOS x86-64 | `.pkg.tar.zst` | Arch Linux or CachyOS with `makepkg` |
 | Flatpak x86-64 | `TruckCraft.flatpak` | Linux with Flatpak and Flatpak Builder |
+| AppImage x86-64 | `TruckCraft.AppImage` | Ubuntu 26.04 with the native build dependencies and SquashFS tools |
 | macOS | Universal `.app` in a ZIP | macOS with Xcode Command Line Tools and both Apple Rust targets |
 
 ## Ubuntu 26.04 LTS
@@ -71,6 +72,21 @@ it in TruckCraft. Replace the example with an absolute path.
 flatpak override --user --filesystem=/absolute/path/to/save-folder io.github.chrissts.TruckCraft
 ```
 
+## AppImage
+
+On Ubuntu 26.04 x86-64, install the Ubuntu build dependencies listed above plus
+`curl` and `squashfs-tools`, then run:
+
+```sh
+bash release/build-unix.sh appimage
+./dist/TruckCraft.AppImage
+```
+
+The image includes TruckCraft, its desktop entry, icons and notices.
+It uses the host’s GTK 3 and graphics libraries. GitHub Actions tests launch,
+save discovery, save and recovery using `--appimage-extract-and-run` on Ubuntu
+26.04. Updating an AppImage means downloading the new file from the release.
+
 ## macOS
 
 ```sh
@@ -110,7 +126,7 @@ record SHA-256 hashes. Launch each package on a clean system and check profile
 discovery, browse dialogs, Save, Undo, Redo and recovery with a disposable save.
 Load edited copies in both simulators and record those checks separately.
 
-The manual [native package workflow](../.github/workflows/package-check.yml) builds the Windows and Linux packages and tests them on fresh runners. The Flatpak check repeats the save and recovery test in native Linux, Proton, and explicitly granted custom directories. The Arch Linux and CachyOS containers install the same pacman package. Select **Also build and smoke test the macOS test package** to build one universal ZIP and test it on Apple Silicon and Intel runners. If enabled, the draft release attaches the verified Windows, RPM, Debian, pacman, and Flatpak downloads. The workflow retains private test artifacts for one day.
+The manual [native package workflow](../.github/workflows/package-check.yml) builds the Windows and Linux packages and tests them on fresh runners. The Flatpak check repeats the save and recovery test in native Linux, Proton, and explicitly granted custom directories. The Arch Linux and CachyOS containers install the same pacman package. Select **Also build and smoke test the macOS test package** to build one universal ZIP and test it on Apple Silicon and Intel runners. If enabled, the draft release attaches the verified Windows, RPM, Debian, pacman, Flatpak, and AppImage downloads. The workflow retains private test artifacts for one day.
 
 ### Sign a Windows update
 
