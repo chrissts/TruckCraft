@@ -2,8 +2,8 @@
 set -euo pipefail
 export LC_ALL=C
 
-if [[ $# -ne 5 ]]; then
-    echo "Usage: $0 ASSETS_DIR OUTPUT_DIR RELEASE_TAG SIGNING_FINGERPRINT BASE_URL" >&2
+if [[ $# -ne 6 ]]; then
+    echo "Usage: $0 ASSETS_DIR OUTPUT_DIR RELEASE_TAG SIGNING_FINGERPRINT BASE_URL PROJECT_URL" >&2
     exit 2
 fi
 assets=$(realpath "$1")
@@ -11,9 +11,11 @@ output=$2
 tag=$3
 key=$4
 base_url=${5%/}
+project_url=${6%/}
 if [[ ! $tag =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ||
-      ! $key =~ ^[A-Fa-f0-9]{40}$ || ! $base_url =~ ^https://[A-Za-z0-9./_-]+$ ]]; then
-    echo 'Expected a stable version tag, an OpenPGP fingerprint and an HTTPS base URL.' >&2
+      ! $key =~ ^[A-Fa-f0-9]{40}$ || ! $base_url =~ ^https://[A-Za-z0-9./_-]+$ ||
+      ! $project_url =~ ^https://github\.com/[A-Za-z0-9-]+/[A-Za-z0-9._-]+$ ]]; then
+    echo 'Expected a stable version tag, an OpenPGP fingerprint, an HTTPS feed URL and a GitHub repository URL.' >&2
     exit 2
 fi
 version=${tag#v}
@@ -136,8 +138,8 @@ cat > "$output/index.html" <<EOF
 <h1>TruckCraft Linux packages</h1>
 <p>Current release: $version</p>
 <ul>
-  <li><a href="https://github.com/chrissts/TruckCraft#linux-updates">Package manager setup and signing key</a></li>
+  <li><a href="$project_url#linux-updates">Package manager setup and signing key</a></li>
   <li><a href="TruckCraft.flatpakref">Install the experimental Flatpak</a></li>
-  <li><a href="https://github.com/chrissts/TruckCraft/releases/latest">Download standalone packages</a></li>
+  <li><a href="$project_url/releases/latest">Download standalone packages</a></li>
 </ul>
 EOF

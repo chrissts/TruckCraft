@@ -15,6 +15,17 @@ cp -R release/flatpak "$work/source/release/"
 cp "release/flatpak/$app_id.yml" "$work/"
 (
     cd "$work/source"
+    python3 - "release/flatpak/$app_id.metainfo.xml" <<'PY'
+import sys
+import tomllib
+from xml.etree import ElementTree
+
+with open("Cargo.toml", "rb") as manifest:
+    repository = tomllib.load(manifest)["workspace"]["package"]["repository"]
+metadata = ElementTree.parse(sys.argv[1])
+ElementTree.SubElement(metadata.getroot(), "url", type="homepage").text = repository
+metadata.write(sys.argv[1], encoding="utf-8", xml_declaration=True)
+PY
     mkdir -p .cargo
     cargo vendor --locked --versioned-dirs vendor/registry > .cargo/config.toml
 )

@@ -10,16 +10,18 @@ import plistlib
 import re
 import shutil
 import struct
+import shlex
 import subprocess
 import tempfile
 import tomllib
 import zipfile
 
 ROOT = Path(__file__).resolve().parent.parent
-VERSION = tomllib.loads((ROOT / "Cargo.toml").read_text(encoding="utf-8"))["workspace"]["package"]["version"]
+PACKAGE = tomllib.loads((ROOT / "Cargo.toml").read_text(encoding="utf-8"))["workspace"]["package"]
+VERSION = PACKAGE["version"]
 DISPLAY_VERSION = VERSION.removesuffix(".0")
 APP_ID = "io.github.chrissts.TruckCraft"
-PROJECT_URL = "https://github.com/chrissts/TruckCraft"
+PROJECT_URL = PACKAGE["repository"]
 DEVELOPER = "TruckCraft contributors"
 WORKSPACE_CRATES = {"truckcraft", "ts-save-core", "scs-codec"}
 LICENSE_PREFIXES = ("license", "licence", "copying", "copyright", "notice", "unlicense", "third-party", "third_party", "ofl")
@@ -261,7 +263,7 @@ pkgver={VERSION}
 pkgrel=1
 pkgdesc='Native save editor for Euro Truck Simulator 2 and American Truck Simulator'
 arch=('x86_64')
-url='https://github.com/chrissts/TruckCraft'
+url={shlex.quote(PROJECT_URL)}
 license=('Apache-2.0')
 depends=('glibc' 'gcc-libs' 'gtk3' 'libglvnd' 'libx11' 'libxkbcommon' 'libxkbcommon-x11' 'wayland' 'curl')
 options=('!debug' '!strip')

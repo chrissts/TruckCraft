@@ -30,7 +30,7 @@ mod skills_ui;
 mod starter_ui;
 mod updates;
 mod vehicle_ui;
-const GITHUB: &str = "https://github.com/chrissts/TruckCraft";
+pub(crate) const GITHUB: &str = env!("CARGO_PKG_REPOSITORY");
 enum Task {
     ReleaseChecked(updates::ReleaseCheck),
     #[cfg(windows)]

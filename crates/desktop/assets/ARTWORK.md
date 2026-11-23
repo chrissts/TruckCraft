@@ -57,3 +57,8 @@ The import manifests and `src/game_artwork/catalog.rs` describe the selected set
 The source checkout includes the provenance record. To bundle the artwork in
 a local build, supply both logos and the complete ETS2 and ATS imports.
 Set `TRUCKCRAFT_BUNDLE_LOCAL_ART=0` to build with TruckCraft artwork only.
+
+## Buy Me a Coffee icon
+
+`buy-me-a-coffee.png` identifies the support link in the app and README. The
+icon belongs to Buy Me a Coffee. [Official PNG](https://cdn.buymeacoffee.com/assets/homepage/meta/favicon-144x144.png) · [Brand kit](https://buymeacoffee.com/brand)

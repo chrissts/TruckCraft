@@ -85,7 +85,7 @@ impl EditorApp {
                         Err(error) => self.error = Some(error.to_string()),
                     }
                 }
-                ui.hyperlink_to(tr("Want another language? Submit a translation PR."), concat!("https://github.com/chrissts/TruckCraft", "/blob/main/AGENTS.md#add-a-language"));
+                ui.hyperlink_to(tr("Want another language? Submit a translation PR."), format!("{GITHUB}/blob/main/AGENTS.md#add-a-language"));
                 if !self.isolated {
                     ui.separator();
                     ui.heading(tr("Automatic update checks"));

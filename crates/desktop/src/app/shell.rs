@@ -1,6 +1,16 @@
 use super::*;
 use design::{ACCENT, BORDER, CANVAS, MUTED, NAVY, TINT, WHITE};
 
+const SUPPORT_URL: &str = "https://buymeacoffee.com/truckcraft";
+
+fn coffee_link(ui: &mut egui::Ui, icon: &egui::TextureHandle) {
+    let image = egui::Image::new((icon.id(), egui::vec2(18.0, 18.0))).corner_radius(4);
+    let text = RichText::new(tr("Buy me a coffee")).size(13.0).color(NAVY);
+    if ui.add(egui::Button::image_and_text(image, text)).clicked() {
+        ui.ctx().open_url(egui::OpenUrl::new_tab(SUPPORT_URL));
+    }
+}
+
 fn tab_bar(
     ui: &mut egui::Ui,
     tabs: [(&str, &egui::TextureHandle); 8],
@@ -265,6 +275,8 @@ impl EditorApp {
                     ui.strong(tr("Community support"));
                     ui.hyperlink_to(tr("Raise an issue or submit a PR with a fix"), GITHUB);
                     ui.hyperlink_to(tr("Original TS SE Tool by LIPtoH"), "https://github.com/LIPtoH/TS-SE-Tool");
+                    ui.add_space(6.0);
+                    coffee_link(ui, &self.artwork.buy_me_a_coffee);
                     ui.add_space(12.0);
                     ui.separator();
                     design::caption(ui, tr("TruckCraft is a Rust remodel of TS SE Tool. The application uses Apache-2.0. The adapted scs_tools decoder retains its MIT and Apache-2.0 notices."));
@@ -298,13 +310,22 @@ impl eframe::App for EditorApp {
                     .inner_margin(egui::Margin::symmetric(22, 9)),
             )
             .show(ui, |ui| {
-                ui.horizontal(|ui| {
-                    ui.label(RichText::new("●").color(if self.unsaved() {
-                        Color32::from_rgb(170, 111, 28)
-                    } else {
-                        ACCENT
-                    }));
-                    ui.label(RichText::new(tr(&self.status)).size(13.0).color(MUTED));
+                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                    coffee_link(ui, &self.artwork.buy_me_a_coffee);
+                    ui.add_space(12.0);
+                    ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
+                        ui.label(RichText::new("●").color(if self.unsaved() {
+                            Color32::from_rgb(170, 111, 28)
+                        } else {
+                            ACCENT
+                        }));
+                        ui.add(
+                            egui::Label::new(
+                                RichText::new(tr(&self.status)).size(13.0).color(MUTED),
+                            )
+                            .wrap(),
+                        );
+                    });
                 });
             });
         egui::Panel::right("save_browser")

@@ -3,6 +3,7 @@ use eframe::egui::{self, ColorImage, TextureHandle};
 use ts_save_core::session::Game;
 
 const MARK: &[u8] = include_bytes!("../assets/app-mark-v2.png");
+const BUY_ME_A_COFFEE: &[u8] = include_bytes!("../assets/buy-me-a-coffee.png");
 const TRUCK: &[u8] = include_bytes!("../assets/truck.png");
 const COACH: &[u8] = include_bytes!("../assets/coach.png");
 const CAR: &[u8] = include_bytes!("../assets/car.png");
@@ -20,6 +21,7 @@ const ATS_LOGO: &[u8] = include_bytes!("../assets/ats-logo.png");
 pub struct Artwork {
     pub game: crate::game_artwork::GameArtwork,
     pub mark: TextureHandle,
+    pub buy_me_a_coffee: TextureHandle,
     pub truck: TextureHandle,
     pub coach: TextureHandle,
     pub car: TextureHandle,
@@ -55,6 +57,7 @@ impl Artwork {
         Self {
             game: crate::game_artwork::GameArtwork::load(context),
             mark: texture(context, "app-mark", MARK),
+            buy_me_a_coffee: texture(context, "buy-me-a-coffee", BUY_ME_A_COFFEE),
             truck: texture(context, "truck", TRUCK),
             coach: texture(context, "coach", COACH),
             car: texture(context, "car", CAR),

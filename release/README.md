@@ -126,6 +126,14 @@ Test Windows updates in a writable directory using isolated instances and two di
 
 ### Publish Linux update feeds
 
+The repository address for TruckCraft's links, update checks, Windows
+downloads, and package metadata comes from `workspace.package.repository`
+in [Cargo.toml](../Cargo.toml). If the project moves, enter the new
+`https://github.com/OWNER/REPOSITORY` URL there and build a new version. The
+feed workflow reads the published Pages URL from GitHub. Preserve the signing
+keys and Flatpak app ID. Keep the old Linux feed URL available during the move,
+or have users register the new feed URL.
+
 Publishing a stable GitHub release automatically starts **Publish Linux update
 feeds** on `main`. Drafts and prereleases leave the feeds alone. The workflow
 checks the latest stable release asset digests and builds signed APT, DNF,
