@@ -292,6 +292,8 @@ The [desktop test workflow](.github/workflows/desktop-tests.yml) runs the worksp
 
 ## Support and attribution
 
+<a href="https://buymeacoffee.com/truckcraft"><img src="crates/desktop/assets/buy-me-a-coffee.png" alt="" width="24" height="24"> Buy me a coffee</a>
+
 [Report an issue](https://github.com/chrissts/TruckCraft/issues) with the game
 version and reproduction steps. Remove personal information from logs and
 screenshots; do not attach private profiles or whole saves.
