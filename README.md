@@ -2,10 +2,10 @@
   <img src="docs/brand/truckcraft-icon.png" width="128" alt="TruckCraft icon">
 </p>
 
-<h1 align="center">TruckCraft — Modern ETS2 &amp; ATS Save Editor</h1>
+<h1 align="center">TruckCraft</h1>
 
 <p align="center">
-  <strong>A native Rust save editor for Euro Truck Simulator 2 and American Truck Simulator.</strong><br>
+  <strong>A modern save editor for ETS2 and ATS.</strong><br>
   Tune your profile, manage your fleet, and edit jobs with a review step before saving.
 </p>
 
