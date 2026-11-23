@@ -180,6 +180,45 @@ def install_linux_files(root, binary, registry, tree):
     copy_notices(root / "usr/share/doc/truckcraft", registry, tree)
 
 
+def appimage_package(work, output):
+    appdir = work / "root"
+    icon = f"{APP_ID}.png"
+    (appdir / "AppRun").symlink_to("usr/bin/truckcraft")
+    (appdir / f"{APP_ID}.desktop").symlink_to(f"usr/share/applications/{APP_ID}.desktop")
+    (appdir / icon).symlink_to(f"usr/share/icons/hicolor/512x512/apps/{icon}")
+    (appdir / ".DirIcon").symlink_to(icon)
+
+    tool = work / "appimagetool"
+    runtime = work / "runtime-x86_64"
+    notices = appdir / "usr/share/doc/truckcraft/licenses/appimage-runtime"
+    notices.mkdir(parents=True)
+    downloads = (
+        (tool, "https://github.com/AppImage/appimagetool/releases/download/1.9.1/appimagetool-x86_64.AppImage",
+         "ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0"),
+        (runtime, "https://github.com/AppImage/type2-runtime/releases/download/20251108/runtime-x86_64",
+         "2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d"),
+        (notices / "LICENSE", "https://raw.githubusercontent.com/AppImage/type2-runtime/20251108/LICENSE",
+         "aa154fc9070614bbe7921f89db11efd1dba7a1f3a41685958110e2230f9c0ca1"),
+    )
+    for path, url, expected in downloads:
+        run("curl", "--fail", "--silent", "--show-error", "--location", "--retry", "3",
+            "--proto", "=https", "--proto-redir", "=https", "--output", str(path), url)
+        if hashlib.sha256(path.read_bytes()).hexdigest() != expected:
+            raise ValueError(f"SHA-256 mismatch for {path.name}")
+    (notices / "SOURCE.txt").write_text(
+        "AppImage Type 2 runtime, release 20251108\n"
+        "https://github.com/AppImage/type2-runtime/tree/20251108\n",
+        encoding="utf-8",
+    )
+    tool.chmod(0o755)
+    artifact = work / "TruckCraft.AppImage"
+    run(str(tool), "--appimage-extract-and-run", "--no-appstream",
+        "--runtime-file", str(runtime), str(appdir), str(artifact),
+        env={**os.environ, "ARCH": "x86_64", "VERSION": VERSION})
+    artifact.chmod(0o755)
+    shutil.copy2(artifact, output / artifact.name)
+
+
 def ubuntu_package(work, output):
     root = work / "root"
     control = work / "debian/control"
@@ -381,7 +420,7 @@ def windows_package(work, args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("platform", choices=("windows", "ubuntu", "fedora", "arch", "macos"))
+    parser.add_argument("platform", choices=("windows", "ubuntu", "fedora", "arch", "appimage", "macos"))
     parser.add_argument("--binary", type=Path)
     parser.add_argument("--toolchain-directory", type=Path, help="Installed Windows GNU toolchain root")
     parser.add_argument("--registry", type=Path, help="Cargo registry/src directory")
@@ -402,7 +441,12 @@ def main():
             macos_package(work, args.output, args.binary, args.registry, args.dependency_tree)
         else:
             install_linux_files(work / "root", args.binary, args.registry, args.dependency_tree)
-            packages = {"ubuntu": ubuntu_package, "fedora": fedora_package, "arch": arch_package}
+            packages = {
+                "ubuntu": ubuntu_package,
+                "fedora": fedora_package,
+                "arch": arch_package,
+                "appimage": appimage_package,
+            }
             packages[args.platform](work, args.output)
 
 
