@@ -13,9 +13,9 @@
   <a href="#downloads"><img src="https://img.shields.io/badge/Windows_x64-.exe-0078D4?style=flat-square" alt="Windows x64 executable"></a>
   <a href="#downloads"><img src="https://img.shields.io/badge/Fedora-.rpm-294172?style=flat-square&amp;logo=fedora&amp;logoColor=white" alt="Fedora RPM package"></a>
   <a href="#downloads"><img src="https://img.shields.io/badge/Ubuntu_%2F_Debian-.deb-A81D33?style=flat-square&amp;logo=debian&amp;logoColor=white" alt="Ubuntu and Debian DEB package"></a>
-  <a href="#downloads"><img src="https://img.shields.io/badge/Arch_%2F_CachyOS-pacman-13799E?style=flat-square&amp;logo=archlinux&amp;logoColor=white" alt="Arch Linux and CachyOS pacman package"></a>
-  <a href="#downloads"><img src="https://img.shields.io/badge/Flatpak-experimental-996B16?style=flat-square&amp;logo=flatpak&amp;logoColor=white" alt="Experimental Linux Flatpak bundle"></a>
-  <a href="#downloads"><img src="https://img.shields.io/badge/AppImage-x86--64-39734F?style=flat-square&amp;logo=linux&amp;logoColor=white" alt="Portable Linux AppImage for x86-64"></a>
+  <a href="#downloads"><img src="https://img.shields.io/badge/Arch_%2F_CachyOS-.pkg.tar.zst-13799E?style=flat-square&amp;logo=archlinux&amp;logoColor=white" alt="Arch Linux and CachyOS pacman package"></a>
+  <a href="#downloads"><img src="https://img.shields.io/badge/Flatpak_%28experimental%29-.flatpak-996B16?style=flat-square&amp;logo=flatpak&amp;logoColor=white" alt="Experimental Linux Flatpak bundle"></a>
+  <a href="#downloads"><img src="https://img.shields.io/badge/Portable_Linux-.AppImage-39734F?style=flat-square&amp;logo=linux&amp;logoColor=white" alt="Portable Linux AppImage for x86-64"></a>
   <a href="https://github.com/chrissts/TruckCraft/actions/workflows/package-check.yml"><img src="https://img.shields.io/badge/macOS-devs_required-996B16?style=flat-square&amp;logo=apple&amp;logoColor=white" alt="macOS developers required"></a>
 </p>
 
