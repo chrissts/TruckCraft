@@ -295,7 +295,7 @@ copy first without the `--delete-data` option, then install the repository build
 
 TruckCraft 1.0.3 targets **ETS2 1.62.x**, **ATS 1.62.x** and **save format 105**. About shows the loaded save’s actual format. Game updates, DLC, maps and mods can affect compatibility. Advanced vehicle parts, game-definition catalogs and some translations are incomplete.
 
-The [desktop test workflow](.github/workflows/desktop-tests.yml) runs the workspace suite on Windows, Ubuntu, Apple Silicon and Intel macOS for pull requests or a manual run. Pull requests that only change Markdown files skip the workspace suite. In-game loading and a standalone run on a clean Windows installation remain release checks. See the [contributor checks](AGENTS.md#release-validation).
+The [desktop test workflow](.github/workflows/desktop-tests.yml) runs the workspace suite on Windows and Ubuntu for pull requests or a manual run. Pull requests that only change Markdown files run pre-commit and skip the workspace suite. In-game loading and a standalone run on a clean Windows installation remain release checks. See the [contributor checks](AGENTS.md#release-validation).
 
 ## Support and attribution
 
