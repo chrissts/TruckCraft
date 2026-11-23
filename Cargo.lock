@@ -3649,7 +3649,7 @@ dependencies = [
 
 [[package]]
 name = "truckcraft"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "dirs",
  "ed25519-dalek",
@@ -3670,7 +3670,7 @@ dependencies = [
 
 [[package]]
 name = "ts-save-core"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "dirs",
  "flate2",
