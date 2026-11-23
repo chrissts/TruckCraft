@@ -1,0 +1,234 @@
+name: TruckCraft package builds and smoke tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      draft_release:
+        description: Create a draft GitHub release after package checks pass
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build · ${{ matrix.label }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { platform: windows, label: Windows x64, package: 'TruckCraft-*-Windows-x64.zip', runner: windows-2025 }
+          - { platform: ubuntu, label: Ubuntu 26.04, package: 'TruckCraft-Ubuntu*.deb', runner: ubuntu-26.04 }
+          - { platform: fedora, label: 'Fedora 45 (container)', package: 'TruckCraft-Fedora*.rpm', runner: ubuntu-26.04, container: 'fedora:45' }
+          - { platform: arch, label: 'Arch Linux (container)', package: TruckCraft.pkg.tar.zst, runner: ubuntu-26.04, container: 'archlinux:base-devel' }
+          - { platform: flatpak, label: Flatpak, package: TruckCraft.flatpak, runner: ubuntu-26.04 }
+          - { platform: macos, label: macOS Universal, package: 'TruckCraft-*-macOS-universal.zip', runner: macos-15 }
+    runs-on: ${{ matrix.runner }}
+    container: ${{ matrix.container }}
+    steps:
+      - name: Prepare Fedora tools
+        if: matrix.platform == 'fedora'
+        run: dnf install -y git gcc python3 rpm-build desktop-file-utils rust cargo gtk3-devel mesa-libGL-devel mesa-libEGL-devel libxkbcommon-devel wayland-devel fontconfig-devel dbus-devel
+      - name: Prepare Arch tools
+        if: matrix.platform == 'arch'
+        run: pacman -Syu --noconfirm --needed git python rustup desktop-file-utils gtk3 libglvnd libx11 libxkbcommon libxkbcommon-x11 wayland curl
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Validate release notes
+        if: matrix.platform == 'ubuntu' && inputs.draft_release
+        run: python3 release/render-notes.py > /dev/null
+      - name: Install Ubuntu build dependencies
+        if: matrix.platform == 'ubuntu'
+        run: sudo apt-get update && sudo apt-get install -y libgtk-3-dev libegl-dev libgl-dev libxkbcommon-dev libwayland-dev libfontconfig1-dev libdbus-1-dev dpkg-dev desktop-file-utils
+      - name: Build Windows GNU package
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          $env:PATH = "C:\msys64\mingw64\bin;$env:PATH"
+          $env:RUSTUP_TOOLCHAIN = '1.100.0-x86_64-pc-windows-gnu'
+          rustup toolchain install $env:RUSTUP_TOOLCHAIN --profile minimal
+          python release/package.py windows
+      - name: Build native Unix package
+        if: matrix.platform != 'windows' && matrix.platform != 'arch' && matrix.platform != 'flatpak'
+        shell: bash
+        env:
+          RUSTUP_TOOLCHAIN: ${{ matrix.platform != 'fedora' && '1.100.0' || '' }}
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          if [[ "$PLATFORM" != fedora ]]; then
+            rustup toolchain install 1.100.0 --profile minimal
+            export PATH="$(rustup which cargo | xargs dirname):$PATH"
+            if [[ "$PLATFORM" == macos ]]; then
+              rustup target add aarch64-apple-darwin x86_64-apple-darwin
+            fi
+          fi
+          rustc --version
+          cargo --version
+          bash release/build-unix.sh "$PLATFORM"
+      - name: Build Arch package as an unprivileged user
+        if: matrix.platform == 'arch'
+        shell: bash
+        run: |
+          useradd --create-home builder
+          runuser -u builder -- rustup toolchain install 1.100.0 --profile minimal
+          runuser -u builder -- env RUSTUP_TOOLCHAIN=1.100.0 \
+            CARGO_TARGET_DIR=/home/builder/target TRUCKCRAFT_DIST_DIR=/home/builder/dist \
+            bash release/build-unix.sh arch
+          install -Dm644 /home/builder/dist/TruckCraft.pkg.tar.zst dist/TruckCraft.pkg.tar.zst
+      - name: Build Flatpak bundle
+        if: matrix.platform == 'flatpak'
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          rustup toolchain install 1.100.0 --profile minimal
+          RUSTUP_TOOLCHAIN=1.100.0 bash release/build-flatpak.sh
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          path: dist/${{ matrix.package }}
+          archive: false
+          if-no-files-found: error
+          retention-days: 1
+
+  run-package:
+    name: Smoke test · ${{ matrix.label }}
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { platform: windows, label: Windows x64, package: 'TruckCraft-*-Windows-x64.zip', runner: windows-2025 }
+          - { platform: ubuntu, label: Ubuntu 26.04, package: 'TruckCraft-Ubuntu*.deb', runner: ubuntu-26.04 }
+          - { platform: fedora, label: 'Fedora 45 (container)', package: 'TruckCraft-Fedora*.rpm', runner: ubuntu-26.04, container: 'fedora:45' }
+          - { platform: arch, label: 'Arch Linux (container)', package: TruckCraft.pkg.tar.zst, runner: ubuntu-26.04, container: 'archlinux:base-devel' }
+          - { platform: flatpak, label: Flatpak, package: TruckCraft.flatpak, runner: ubuntu-26.04 }
+          - { platform: macos, label: macOS Apple Silicon, package: 'TruckCraft-*-macOS-universal.zip', runner: macos-15 }
+          - { platform: cachyos, label: 'CachyOS (container)', package: TruckCraft.pkg.tar.zst, runner: ubuntu-26.04, container: 'cachyos/cachyos' }
+          - { platform: macos, label: macOS Intel, package: 'TruckCraft-*-macOS-universal.zip', runner: macos-15-intel }
+    runs-on: ${{ matrix.runner }}
+    container: ${{ matrix.container }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        if: matrix.platform == 'flatpak'
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          pattern: ${{ matrix.package }}
+          merge-multiple: true
+          skip-decompress: true
+          path: incoming
+      - name: Install Mesa for Windows smoke test
+        if: matrix.platform == 'windows'
+        uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
+        id: windows-mesa
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-mesa
+      - name: Extract and run Windows ZIP
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        env:
+          MSYS2_LOCATION: ${{ steps.windows-mesa.outputs.msys2-location }}
+          GALLIUM_DRIVER: llvmpipe
+        run: |
+          Expand-Archive -LiteralPath (Get-Item incoming/*-Windows-x64.zip).FullName -DestinationPath installed
+          # Put Mesa beside the extracted executable so WGL uses it for this test.
+          $mesaBin = Join-Path $env:MSYS2_LOCATION 'ucrt64/bin'
+          Copy-Item -LiteralPath "$mesaBin/opengl32.dll","$mesaBin/libgallium_wgl.dll" -Destination installed
+          $env:PATH = "$mesaBin;$env:PATH"
+          $stderr = Join-Path $env:RUNNER_TEMP 'truckcraft-package-check.stderr'
+          $process = Start-Process -FilePath installed/truckcraft.exe -ArgumentList '--package-check' -RedirectStandardError $stderr -PassThru -Wait
+          Get-Content -LiteralPath $stderr
+          if ($process.ExitCode -ne 0) { throw "TruckCraft package check exited with code $($process.ExitCode)" }
+      - name: Install and run Ubuntu package
+        if: matrix.platform == 'ubuntu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ./incoming/*.deb xvfb xauth libgl1-mesa-dri
+          xvfb-run -a -s '-screen 0 1600x1000x24' truckcraft --package-check
+      - name: Install and run Fedora package
+        if: matrix.platform == 'fedora'
+        run: |
+          dnf install -y ./incoming/*.rpm xorg-x11-server-Xvfb mesa-dri-drivers
+          Xvfb :88 -screen 0 1600x1000x24 -ac -nolisten tcp &
+          for i in 1 2 3 4 5; do [ -S /tmp/.X11-unix/X88 ] && break; sleep 1; done
+          DISPLAY=:88 LIBGL_ALWAYS_SOFTWARE=1 truckcraft --package-check
+      - name: Extract and run universal Mac app
+        if: matrix.platform == 'macos'
+        run: |
+          ditto -x -k incoming/*-macOS-universal.zip installed
+          codesign --verify --strict installed/TruckCraft.app
+          lipo installed/TruckCraft.app/Contents/MacOS/truckcraft -verify_arch arm64 x86_64
+          installed/TruckCraft.app/Contents/MacOS/truckcraft --package-check
+      - name: Install and run pacman package
+        if: matrix.platform == 'arch' || matrix.platform == 'cachyos'
+        shell: bash
+        run: |
+          pacman -Syu --noconfirm --needed xorg-server-xvfb mesa
+          pacman -U --noconfirm incoming/TruckCraft.pkg.tar.zst
+          Xvfb :88 -screen 0 1600x1000x24 -ac -nolisten tcp &
+          trap 'kill "$!"' EXIT
+          for i in 1 2 3 4 5; do [ -S /tmp/.X11-unix/X88 ] && break; sleep 1; done
+          DISPLAY=:88 GDK_BACKEND=x11 LIBGL_ALWAYS_SOFTWARE=1 truckcraft --package-check
+      - name: Install and run the Flatpak bundle
+        if: matrix.platform == 'flatpak'
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak xvfb xauth dbus-daemon
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user --noninteractive -y incoming/TruckCraft.flatpak
+          dbus-run-session -- xvfb-run -a env -u WAYLAND_DISPLAY -u WAYLAND_SOCKET bash release/test-flatpak.sh
+
+  draft-release:
+    name: Create draft release
+    if: inputs.draft_release
+    needs: run-package
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          pattern: 'TruckCraft{*-Windows-x64.zip,-Fedora*.rpm,-Ubuntu*.deb,.pkg.tar.zst,.flatpak}'
+          merge-multiple: true
+          skip-decompress: true
+          path: incoming
+      - name: Draft release with verified packages
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(python3 -c 'import tomllib; print(tomllib.load(open("Cargo.toml", "rb"))["workspace"]["package"]["version"])')
+          display_version=${version%.0}
+          python3 release/render-notes.py > "$RUNNER_TEMP/truckcraft-release-notes.md"
+          python3 -c 'import sys, zipfile; zipfile.ZipFile(sys.argv[1]).extract("truckcraft.exe", "incoming")' \
+            "incoming/TruckCraft-$display_version-Windows-x64.zip"
+          mkdir release-assets
+          cp incoming/truckcraft.exe release-assets/TruckCraft.exe
+          cp incoming/TruckCraft-Fedora45-x86_64.rpm release-assets/TruckCraft.rpm
+          cp incoming/TruckCraft-Ubuntu26.04-amd64.deb release-assets/TruckCraft.deb
+          cp incoming/TruckCraft.pkg.tar.zst release-assets/TruckCraft.pkg.tar.zst
+          cp incoming/TruckCraft.flatpak release-assets/TruckCraft.flatpak
+          assets=(
+            "release-assets/TruckCraft.exe"
+            "release-assets/TruckCraft.rpm"
+            "release-assets/TruckCraft.deb"
+            "release-assets/TruckCraft.pkg.tar.zst"
+            "release-assets/TruckCraft.flatpak"
+          )
+          for asset in "${assets[@]}"; do
+            test -s "$asset"
+          done
+          gh release create "v$version" "${assets[@]}" \
+            --draft --target "$GITHUB_SHA" --title "TruckCraft $display_version" \
+            --notes-file "$RUNNER_TEMP/truckcraft-release-notes.md"

@@ -1,0 +1,91 @@
+name: Desktop tests
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    name: Pre-commit
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-26.04
+    outputs:
+      markdown_only: ${{ steps.diff.outputs.markdown_only }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - id: diff
+        name: Check the pull request merge diff
+        shell: bash
+        run: |
+          if git diff --quiet --no-renames HEAD^1 HEAD -- . ':(exclude,glob,icase)**/*.md'; then
+            echo 'markdown_only=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Install Rust formatting tools
+        if: steps.diff.outputs.markdown_only != 'true'
+        run: rustup toolchain install 1.100.0 --profile minimal --component rustfmt
+      - name: Check changed files
+        shell: bash
+        env:
+          RUSTUP_TOOLCHAIN: 1.100.0
+        run: |
+          python3 -m venv "$RUNNER_TEMP/pre-commit"
+          "$RUNNER_TEMP/pre-commit/bin/python" -m pip install pre-commit==4.7.0
+          "$RUNNER_TEMP/pre-commit/bin/pre-commit" run --from-ref HEAD^1 --to-ref HEAD
+
+  test:
+    name: Workspace tests on ${{ matrix.os }}
+    needs: changes
+    if: ${{ always() && needs.changes.outputs.markdown_only != 'true' }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2025, ubuntu-26.04]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Linux desktop libraries
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libgtk-3-dev libgl-dev libegl-dev libxkbcommon-dev libwayland-dev libfontconfig1-dev libdbus-1-dev
+
+      - name: Install workspace toolchain
+        run: rustup toolchain install 1.100.0 --profile minimal
+
+      - name: Run workspace tests
+        run: cargo +1.100.0 test --locked --workspace
+
+  desktop-checks:
+    name: Desktop checks
+    needs: [changes, test]
+    if: ${{ always() }}
+    runs-on: ubuntu-26.04
+    steps:
+      - name: Verify required results
+        shell: bash
+        env:
+          PRE_COMMIT_RESULT: ${{ needs.changes.result }}
+          MARKDOWN_ONLY: ${{ needs.changes.outputs.markdown_only }}
+          TEST_RESULT: ${{ needs.test.result }}
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == pull_request && "$PRE_COMMIT_RESULT" != success ]]; then
+            echo '::error::Pre-commit checks must pass.'
+            exit 1
+          fi
+          if [[ "$MARKDOWN_ONLY" == true && "$TEST_RESULT" == skipped ]]; then
+            echo 'Markdown-only changes passed pre-commit.'
+            exit 0
+          fi
+          if [[ "$TEST_RESULT" != success ]]; then
+            echo '::error::All desktop test jobs must pass.'
+            exit 1
+          fi

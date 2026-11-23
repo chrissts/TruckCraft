@@ -1,0 +1,26 @@
+[workspace]
+members = ["crates/scs-codec", "crates/save-core", "crates/desktop"]
+resolver = "2"
+
+[workspace.package]
+version = "1.0.3"
+edition = "2024"
+license = "Apache-2.0"
+repository = "https://github.com/chrissts/TruckCraft"
+
+[workspace.dependencies]
+thiserror = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.11"
+tempfile = "3"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+debug = 0
+strip = "symbols"
+
+[profile.dev]
+debug = 0

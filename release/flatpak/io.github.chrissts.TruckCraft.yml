@@ -1,0 +1,54 @@
+id: io.github.chrissts.TruckCraft
+runtime: org.gnome.Platform
+runtime-version: '50'
+sdk: org.gnome.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-stable
+command: truckcraft
+finish-args:
+  - --share=ipc
+  - --share=network
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri
+  - --filesystem=xdg-data/Euro Truck Simulator 2
+  - --filesystem=xdg-data/American Truck Simulator
+  - --filesystem=xdg-documents/Euro Truck Simulator 2
+  - --filesystem=xdg-documents/American Truck Simulator
+  - --filesystem=~/.var/app/com.valvesoftware.Steam/data/Euro Truck Simulator 2
+  - --filesystem=~/.var/app/com.valvesoftware.Steam/data/American Truck Simulator
+  - --filesystem=xdg-data/Steam:ro
+  - --filesystem=xdg-data/Steam/steamapps/compatdata/227300
+  - --filesystem=xdg-data/Steam/steamapps/compatdata/270880
+  - --filesystem=xdg-data/Steam/userdata
+  - --filesystem=~/.steam/steam:ro
+  - --filesystem=~/.steam/steam/steamapps/compatdata/227300
+  - --filesystem=~/.steam/steam/steamapps/compatdata/270880
+  - --filesystem=~/.steam/steam/userdata
+  - --filesystem=~/.var/app/com.valvesoftware.Steam/data/Steam:ro
+  - --filesystem=~/.var/app/com.valvesoftware.Steam/data/Steam/steamapps/compatdata/227300
+  - --filesystem=~/.var/app/com.valvesoftware.Steam/data/Steam/steamapps/compatdata/270880
+  - --filesystem=~/.var/app/com.valvesoftware.Steam/data/Steam/userdata
+  - --filesystem=~/.var/app/com.valvesoftware.Steam/.local/share/Steam:ro
+  - --filesystem=~/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/compatdata/227300
+  - --filesystem=~/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/compatdata/270880
+  - --filesystem=~/.var/app/com.valvesoftware.Steam/.local/share/Steam/userdata
+build-options:
+  append-path: /usr/lib/sdk/rust-stable/bin
+  env:
+    TRUCKCRAFT_BUNDLE_LOCAL_ART: '0'
+    CARGO_ENCODED_RUSTFLAGS: --remap-path-prefix=/run/build/truckcraft=/src
+modules:
+  - name: truckcraft
+    buildsystem: simple
+    build-commands:
+      - cargo build --offline --locked --release -p truckcraft
+      - cargo tree --offline --locked -p truckcraft -e normal --prefix none > dependencies.txt
+      - install -Dm755 target/release/truckcraft /app/bin/truckcraft
+      - install -Dm644 release/flatpak/io.github.chrissts.TruckCraft.desktop /app/share/applications/io.github.chrissts.TruckCraft.desktop
+      - install -Dm644 release/flatpak/io.github.chrissts.TruckCraft.metainfo.xml /app/share/metainfo/io.github.chrissts.TruckCraft.metainfo.xml
+      - install -Dm644 crates/desktop/assets/app-mark-v2.png /app/share/icons/hicolor/512x512/apps/io.github.chrissts.TruckCraft.png
+      - python3 -c 'import runpy; from pathlib import Path; runpy.run_path("release/package.py")["copy_notices"](Path("/app/share/doc/truckcraft"), Path("vendor"), Path("dependencies.txt"))'
+    sources:
+      - type: dir
+        path: source

@@ -1,0 +1,19 @@
+TruckCraft
+Project: https://github.com/chrissts/TruckCraft
+
+Development reference: TS SE Tool by LIPtoH (https://github.com/LIPtoH/TS-SE-Tool).
+
+scs-codec adapts Wilps93/scs_tools at commit
+e147e755778579e78f80a406a53c64515113d7a1.
+See crates/scs-codec/LICENSE, UPSTREAM-NOTICES.md and licenses/ for the
+applicable MIT, Apache-2.0 and algorithm/documentation provenance notices.
+Other dependencies retain their respective licenses, recorded by Cargo.lock.
+Binary distributions include these license records in the licenses folder.
+
+Euro Truck Simulator 2 and American Truck Simulator names and logos are
+SCS Software assets, used to identify the games. They are not licensed under
+the application source license. Game skill artwork, stock portraits and company
+logos bundled in private builds likewise retain SCS Software attribution. See
+crates/desktop/assets/ARTWORK.md and crates/desktop/assets/game/ASSET-SOURCES.json
+for their provenance.
+TruckCraft is not affiliated with or endorsed by SCS Software.
