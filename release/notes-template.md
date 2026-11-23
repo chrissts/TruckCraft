@@ -18,7 +18,7 @@ TruckCraft edits local Euro Truck Simulator 2 and American Truck Simulator saves
 
 The Linux packages are checked on Fedora 45, Ubuntu 26.04, Arch Linux, and CachyOS. Other distributions need compatible system libraries.
 
-- **Bazzite** is Fedora-based. Use `TruckCraft.rpm` inside a Fedora 45 Distrobox container. TruckCraft has yet to be tested on Bazzite itself. [Bazzite’s Distrobox guide](https://docs.bazzite.gg/Installing_and_Managing_Software/Distrobox/)
+- **Bazzite.** Try the experimental `TruckCraft.flatpak` first. For `TruckCraft.rpm`, Bazzite recommends a Fedora Distrobox. Use Fedora 45 to match TruckCraft’s RPM tests. You can also install the RPM on the host with `rpm-ostree` if its dependencies resolve. Host installation requires a reboot. TruckCraft testing on Bazzite is pending. [Bazzite’s RPM guide](https://docs.bazzite.gg/Installing_and_Managing_Software/rpm-ostree/)
 - **SteamOS (experimental).** In Desktop Mode, use the Flatpak download and run the install command in Konsole. The bundle passed automated Linux sandbox tests. Testing on SteamOS and Steam Deck hardware is still pending. [Valve’s SteamOS desktop FAQ](https://help.steampowered.com/en/faqs/view/671A-4453-E8D2-323C)
 - **macOS** has an opt-in universal CI test build with automated smoke tests on Apple Silicon and Intel. Hands-on testing on a Mac is still pending. [macOS test builds]($repository/actions/workflows/package-check.yml)
 
