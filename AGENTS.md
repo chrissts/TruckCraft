@@ -97,6 +97,9 @@ Install the hooks with `pre-commit install`. Run `pre-commit run` against
 staged files before committing and resolve any reported failures. GitHub Actions
 runs the same hooks on files changed by a pull request.
 
+Use Conventional Commits-style pull request titles, such as
+`docs: add a support badge to the README` or `fix(updater): preserve pending edits`.
+
 Run the checks appropriate to the change:
 
 ```sh
