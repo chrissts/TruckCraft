@@ -110,7 +110,7 @@ record SHA-256 hashes. Launch each package on a clean system and check profile
 discovery, browse dialogs, Save, Undo, Redo and recovery with a disposable save.
 Load edited copies in both simulators and record those checks separately.
 
-The manual [native package workflow](../.github/workflows/package-check.yml) builds each package and tests it on a fresh runner. The Flatpak check repeats the save and recovery test in native Linux, Proton, and explicitly granted custom directories. Both Mac runners use the same universal ZIP. The Arch Linux and CachyOS containers install the same pacman package. If enabled, the draft release attaches the verified Windows, RPM, Debian, pacman, and Flatpak downloads. The workflow retains private test artifacts for one day.
+The manual [native package workflow](../.github/workflows/package-check.yml) builds the Windows and Linux packages and tests them on fresh runners. The Flatpak check repeats the save and recovery test in native Linux, Proton, and explicitly granted custom directories. The Arch Linux and CachyOS containers install the same pacman package. Select **Also build and smoke test the macOS test package** to build one universal ZIP and test it on Apple Silicon and Intel runners. If enabled, the draft release attaches the verified Windows, RPM, Debian, pacman, and Flatpak downloads. The workflow retains private test artifacts for one day.
 
 ### Sign a Windows update
 
