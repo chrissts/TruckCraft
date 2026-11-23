@@ -8,8 +8,29 @@ permissions:
   contents: read
 
 jobs:
+  changes:
+    name: Detect Markdown-only changes
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-26.04
+    outputs:
+      markdown_only: ${{ steps.diff.outputs.markdown_only }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - id: diff
+        name: Check the pull request merge diff
+        shell: bash
+        run: |
+          if git diff --quiet --no-renames HEAD^1 HEAD -- . ':(exclude,glob,icase)**/*.md'; then
+            echo 'markdown_only=true' >> "$GITHUB_OUTPUT"
+          fi
+
   test:
     name: Workspace tests on ${{ matrix.os }}
+    needs: changes
+    if: ${{ always() && (needs.changes.result != 'success' || needs.changes.outputs.markdown_only != 'true') }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
