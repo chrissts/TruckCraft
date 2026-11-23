@@ -204,6 +204,13 @@ For a separately installed Windows GNU toolchain, use the wrapper to remap local
 
 TruckCraft builds directly from a fresh checkout and can read regional plate artwork from a local game installation. Local builds can also use a complete set of separately supplied game artwork. [Artwork and provenance](crates/desktop/assets/ARTWORK.md)
 
+To enable local checks, [install pre-commit](https://pre-commit.com/#install) and
+run `pre-commit install` from the repository root. The hooks check staged files
+for syntax, whitespace, merge markers, and private keys. Rust changes also run
+`cargo fmt --check` using the installed Rust toolchain with `rustfmt`.
+Use a pull request title that describes the change, such as “Add a support badge
+to the README.”
+
 TruckCraft asks before enabling automatic update checks. **Check for updates at launch** is ticked by default and takes effect when you select **Continue**. When enabled, TruckCraft contacts GitHub in the background at launch and shows a dialog if a newer version is available. Change your choice in Settings or select **Check for updates** beside Settings to check manually. On Windows, download a verified update and choose **Install and restart** once pending save edits are resolved. On Linux, use your package manager after [setting up the repository](#linux-updates), or open the release and download the matching package. The dialog also links to macOS test builds and to manual downloads for Windows releases without verified update metadata.
 
 ## Linux updates

@@ -93,6 +93,9 @@ Formatted status messages and some dynamic labels still need catalog entries.
 
 ## Verification and release hygiene
 
+Install the hooks with `pre-commit install`. Run `pre-commit run` against
+staged files before committing and resolve any reported failures.
+
 Run the checks appropriate to the change:
 
 ```sh
