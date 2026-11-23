@@ -309,8 +309,6 @@ The [desktop test workflow](.github/workflows/desktop-tests.yml) runs the worksp
 version and reproduction steps. Remove personal information from logs and
 screenshots; do not attach private profiles or whole saves.
 
-TruckCraft is a **Rust remodel** of
-[LIPtoH/TS-SE-Tool](https://github.com/LIPtoH/TS-SE-Tool).
 The application is licensed under Apache-2.0.
 See [LICENSE](LICENSE) and [NOTICE](NOTICE).
 The Rust codec adapts [scs_tools](https://github.com/Wilps93/scs_tools), with its

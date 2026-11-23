@@ -6,10 +6,8 @@ The simulator compatibility target is **ETS2 and ATS 1.62.x**.
 
 ## Repository and provenance
 
-- Describe TruckCraft as a **Rust remodel** of TS SE Tool. Reference source
-  was available during development, and `scs-codec` contains adapted third-party
-  code. Do not claim strict clean-room isolation or remove attribution.
-- Keep the original-project link: https://github.com/LIPtoH/TS-SE-Tool.
+- Describe TruckCraft as a native Rust save editor. Retain attribution for
+  adapted third-party code in `scs-codec`.
 - Project, issue and PR links use https://github.com/chrissts/TruckCraft.
 - Retain `LICENSE`, `NOTICE`, dependency licenses and asset provenance. Game logos
   remain SCS Software assets; they are not Apache-licensed application artwork.

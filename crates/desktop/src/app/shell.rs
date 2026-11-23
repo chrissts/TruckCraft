@@ -274,12 +274,11 @@ impl EditorApp {
                     ui.add_space(12.0);
                     ui.strong(tr("Community support"));
                     ui.hyperlink_to(tr("Raise an issue or submit a PR with a fix"), GITHUB);
-                    ui.hyperlink_to(tr("Original TS SE Tool by LIPtoH"), "https://github.com/LIPtoH/TS-SE-Tool");
                     ui.add_space(6.0);
                     coffee_link(ui, &self.artwork.buy_me_a_coffee);
                     ui.add_space(12.0);
                     ui.separator();
-                    design::caption(ui, tr("TruckCraft is a Rust remodel of TS SE Tool. The application uses Apache-2.0. The adapted scs_tools decoder retains its MIT and Apache-2.0 notices."));
+                    design::caption(ui, tr("The application uses Apache-2.0. The adapted scs_tools decoder retains its MIT and Apache-2.0 notices."));
                     design::caption(ui, tr("ETS2 and ATS names and logos belong to SCS Software. TruckCraft is an independent community project."));
                 });
         }

@@ -1,13 +1,7 @@
 TruckCraft
-Rust remodel of TS SE Tool.
-Original project: https://github.com/LIPtoH/TS-SE-Tool
-Community project: https://github.com/chrissts/TruckCraft
+Project: https://github.com/chrissts/TruckCraft
 
-The original project's Apache-2.0 license and attribution are retained.
-The remodel was developed with the original C# application, its
-community changes, and third-party decoder source available as references.
-This repository contains the Rust implementation and starts without imported
-Git history.
+Development reference: TS SE Tool by LIPtoH (https://github.com/LIPtoH/TS-SE-Tool).
 
 scs-codec adapts Wilps93/scs_tools at commit
 e147e755778579e78f80a406a53c64515113d7a1.
