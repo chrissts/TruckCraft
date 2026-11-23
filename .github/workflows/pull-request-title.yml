@@ -11,18 +11,13 @@ jobs:
     name: Check pull request title
     runs-on: ubuntu-26.04
     steps:
-      - name: Check that the title describes a change
+      - name: Check the Conventional Commits title
         shell: bash
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          case "${PR_TITLE,,}" in
-            wip|wip[[:space:]:-]*|todo|todo[[:space:]:-]*|update|updates|fixes|changes|misc)
-              echo '::error::Use a title that describes the change, such as Add a support badge to the README.'
-              exit 1
-              ;;
-          esac
-          if [[ ! $PR_TITLE =~ ^[[:alnum:]].*[[:space:]].*[[:alnum:]] ]]; then
-            echo '::error::Use a descriptive title, such as Add a support badge to the README.'
+          pattern='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([[:alnum:]_./-]+\))?!?: [^[:space:]].*$'
+          if [[ ! ${PR_TITLE,,} =~ $pattern ]]; then
+            echo '::error::Use a Conventional Commits title, such as docs: add a support badge to the README.'
             exit 1
           fi
