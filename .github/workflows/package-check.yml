@@ -224,15 +224,13 @@ jobs:
           retention-days: 1
 
   macos-smoke:
-    name: Smoke test · ${{ matrix.label }}
+    name: Smoke test · macOS
     if: inputs.macos_checks
     needs: macos-build
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - { label: macOS Apple Silicon, runner: macos-15 }
-          - { label: macOS Intel, runner: macos-15-intel }
+        runner: [macos-15, macos-15-intel]
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 15
     steps:
@@ -242,7 +240,7 @@ jobs:
           merge-multiple: true
           skip-decompress: true
           path: incoming
-      - name: Extract and run universal Mac app
+      - name: Extract and run universal Mac app on ${{ runner.arch }}
         run: |
           ditto -x -k incoming/*-macOS-universal.zip installed
           codesign --verify --strict installed/TruckCraft.app
