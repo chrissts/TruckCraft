@@ -5,7 +5,7 @@
 <h1 align="center">TruckCraft</h1>
 
 <p align="center">
-  <strong>A modern save editor for ETS2 and ATS.</strong><br>
+  <strong>A modern save editor for Euro Truck Simulator 2 (ETS2) and American Truck Simulator (ATS).</strong><br>
   Tune your profile, manage your fleet, and edit jobs with a review step before saving.
 </p>
 
